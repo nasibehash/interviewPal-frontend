@@ -96,3 +96,52 @@ export interface Evaluation {
 
 export const isChoiceQuestion = (q: Pick<Question, 'type'>): boolean =>
   q.type === 'MultipleChoice' || q.type === 'CodeOutput';
+
+export type LessonKind = 'Algorithm' | 'DesignPattern';
+
+export interface LessonSummary {
+  id: string;
+  kind: LessonKind;
+  title: string;
+  category: string;
+  level: Level;
+  summary: string;
+  tags: string[];
+  estimatedMinutes: number;
+}
+
+export interface LessonImplementation {
+  technology: string;
+  title: string;
+  language: string;
+  code: string;
+  walkthrough: string;
+}
+
+/** An exercise as shown to the learner: it never says which choice is right. */
+export interface LessonExercise {
+  id: string;
+  text: string;
+  choices: Choice[];
+}
+
+export interface LessonDetail extends LessonSummary {
+  scenario: string;
+  explanation: string;
+  timeComplexity: string | null;
+  spaceComplexity: string | null;
+  whenToUse: string;
+  whenNotToUse: string | null;
+  commonMistake: string | null;
+  technologies: string[];
+  /** The implementation written for the requested technology; null when none was requested. */
+  implementation: LessonImplementation | null;
+  exercises: LessonExercise[];
+}
+
+export interface CheckExerciseResult {
+  exerciseId: string;
+  isCorrect: boolean;
+  correctChoiceId: number;
+  explanation: string;
+}
