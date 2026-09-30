@@ -1,0 +1,23 @@
+.top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-block-end: 0.5rem; }
+.clock { font-variant-numeric: tabular-nums; font-weight: 700; direction: ltr; &.low { color: var(--bad); } }
+.link { font: inherit; background: none; border: 0; color: var(--muted); text-decoration: underline; cursor: pointer; }
+.bar { block-size: 0.4rem; background: var(--border); border-radius: 99rem; overflow: hidden; margin-block-end: 1rem; }
+.fill { block-size: 100%; background: var(--primary); transition: inline-size 0.2s; }
+.choices { list-style: none; padding: 0; margin: 1rem 0 0; display: grid; gap: 0.5rem; }
+.choice {
+  font: inherit; text-align: start; inline-size: 100%; padding: 0.7rem 1rem; border-radius: 0.8rem;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer;
+  &.selected { border-color: var(--primary); background: var(--primary-soft); }
+  &.correct { border-color: var(--good); background: var(--good-soft); }
+  &.wrong { border-color: var(--bad); background: var(--bad-soft); }
+  &:disabled { cursor: default; }
+}
+.verdict { font-weight: 700; &.ok { color: var(--good); } &.no { color: var(--bad); } }
+.actions { display: flex; gap: 0.5rem; margin-block-start: 1rem; flex-wrap: wrap; }
+.nav { display: flex; justify-content: space-between; margin-block-start: 1rem; }
+.note { display: grid; gap: 0.3rem; margin-block-start: 1rem; }
+textarea { font: inherit; padding: 0.6rem; border-radius: 0.7rem; border: 1px solid var(--border); background: var(--surface); color: var(--text); resize: vertical; }
+.assess { margin-block-end: 1rem; }
+.mine { background: var(--code-bg); padding: 0.6rem 0.9rem; border-radius: 0.7rem; }
+
+.choice ::ng-deep p { margin: 0; }
