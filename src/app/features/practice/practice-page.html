@@ -1,0 +1,108 @@
+@if (store.phase() === 'self-assessment') {
+  <h1>خودارزیابی</h1>
+  <p class="muted">برای سؤال‌های تشریحی، جواب نمونه را ببین و بگو بلد بودی یا نه.</p>
+  @for (q of store.questions(); track q.id) {
+    @if (!isChoice(q)) {
+      <section class="card assess">
+        <app-question-view [question]="q" />
+        @if (store.notes()[q.id]; as mine) {
+          <p class="mine"><strong>جواب تو:</strong> {{ mine }}</p>
+        }
+        @if (store.revealed()[q.id]; as answer) {
+          <app-answer-panel [answer]="answer" />
+        } @else {
+          <button class="btn" type="button" [disabled]="store.busy()" (click)="store.reveal(q)">نمایش جواب</button>
+        }
+        <div class="actions">
+          <button class="btn" type="button" [class.primary]="store.correctness()[q.id] === true" (click)="store.selfAssess(q, true)">بلد بودم</button>
+          <button class="btn" type="button" [class.primary]="store.correctness()[q.id] === false" (click)="store.selfAssess(q, false)">بلد نبودم</button>
+        </div>
+      </section>
+    }
+  }
+  @if (store.error(); as message) {
+    <p class="error" role="alert">{{ message }}</p>
+  }
+  <button class="btn primary" type="button" [disabled]="store.busy()" (click)="store.submit()">ثبت و دیدن نتیجه</button>
+} @else if (store.current(); as q) {
+  <div class="top">
+    <span>سؤال {{ store.index() + 1 }} از {{ store.questions().length }}</span>
+    @if (clock(); as c) {
+      <span class="clock" [class.low]="(remaining() ?? 0) < 60" role="timer" aria-label="زمان باقی‌مانده">{{ c }}</span>
+    }
+    <button class="link" type="button" (click)="abandon()">رها کردن</button>
+  </div>
+  <div class="bar" role="progressbar" [attr.aria-valuenow]="progressPercent()" aria-valuemin="0" aria-valuemax="100">
+    <div class="fill" [style.inline-size.%]="progressPercent()"></div>
+  </div>
+
+  <section class="card">
+    <app-question-view [question]="q" />
+
+    @if (store.mode() === 'Flashcard') {
+      @if (revealed(); as answer) {
+        <app-answer-panel [answer]="answer" />
+        <div class="actions">
+          <button class="btn" type="button" [class.primary]="graded() === true" (click)="store.selfAssess(q, true)">بلد بودم</button>
+          <button class="btn" type="button" [class.primary]="graded() === false" (click)="store.selfAssess(q, false)">بلد نبودم</button>
+        </div>
+      } @else {
+        <div class="actions">
+          <button class="btn primary" type="button" [disabled]="store.busy()" (click)="store.reveal(q)">نمایش جواب</button>
+        </div>
+      }
+    } @else if (isChoice(q)) {
+      <ul class="choices">
+        @for (c of q.choices; track c.id) {
+          <li>
+            <button
+              type="button"
+              class="choice {{ choiceState(q, c.id) }}"
+              [disabled]="store.busy() || (store.mode() === 'Learning' && !!revealed())"
+              (click)="store.selectChoice(q, c.id)"
+             [innerHTML]="c.text | markdown"></button>
+          </li>
+        }
+      </ul>
+      @if (store.mode() === 'Learning' && revealed(); as answer) {
+        <p class="verdict" [class.ok]="graded()" [class.no]="!graded()" role="status">
+          {{ graded() ? 'درست بود!' : 'اشتباه بود.' }}
+        </p>
+        <app-answer-panel [answer]="answer" />
+      }
+    } @else if (store.mode() === 'Interview') {
+      <label class="note">
+        <span class="muted">جواب خودت (اختیاری، فقط برای یادآوری):</span>
+        <textarea rows="4" [value]="note()" (input)="onNote(q, $event)"></textarea>
+      </label>
+    } @else {
+      @if (revealed(); as answer) {
+        <app-answer-panel [answer]="answer" />
+        <div class="actions">
+          <button class="btn" type="button" [class.primary]="graded() === true" (click)="store.selfAssess(q, true)">بلد بودم</button>
+          <button class="btn" type="button" [class.primary]="graded() === false" (click)="store.selfAssess(q, false)">بلد نبودم</button>
+        </div>
+      } @else {
+        <div class="actions">
+          <button class="btn primary" type="button" [disabled]="store.busy()" (click)="store.reveal(q)">نمایش جواب</button>
+        </div>
+      }
+    }
+
+    @if (store.error(); as message) {
+      <p class="error" role="alert">{{ message }}</p>
+    }
+    @if (revealed()) {
+      <app-report-dialog [questionId]="q.id" />
+    }
+  </section>
+
+  <div class="nav">
+    <button class="btn" type="button" [disabled]="store.index() === 0" (click)="store.previous()">قبلی</button>
+    @if (store.isLast()) {
+      <button class="btn primary" type="button" [disabled]="store.busy()" (click)="finish()">پایان تمرین</button>
+    } @else {
+      <button class="btn primary" type="button" (click)="store.next()">بعدی</button>
+    }
+  </div>
+}

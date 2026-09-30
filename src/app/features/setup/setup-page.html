@@ -1,0 +1,57 @@
+<h1>تمرین مصاحبه فنی</h1>
+<p class="muted">تکنولوژی‌ها را انتخاب کن (اگر هیچ‌کدام را انتخاب نکنی، از همه سؤال می‌آید).</p>
+
+@if (technologies.isLoading()) {
+  <p class="muted">در حال بارگذاری…</p>
+} @else if (technologies.error()) {
+  <div class="error" role="alert">
+    ارتباط با سرور برقرار نشد.
+    <button class="btn" type="button" (click)="technologies.reload()">تلاش دوباره</button>
+  </div>
+} @else {
+  <div class="techs">
+    @for (t of technologies.value() ?? []; track t.slug) {
+      <button
+        type="button"
+        class="card tech"
+        [attr.aria-pressed]="selectedTechs().includes(t.slug)"
+        (click)="toggleTech(t.slug)"
+      >
+        <strong>{{ t.name }}</strong>
+        <span class="muted ver">{{ t.supportedFrom }} → {{ t.currentVersion }}</span>
+        <span class="muted">{{ t.questionCount }} سؤال</span>
+      </button>
+    }
+  </div>
+}
+
+<section class="card options">
+  <h2>سطح</h2>
+  <div class="row">
+    @for (l of levels; track l) {
+      <button type="button" class="chip" [attr.aria-pressed]="selectedLevels().includes(l)" (click)="toggleLevel(l)">
+        {{ levelLabels[l] }}
+      </button>
+    }
+  </div>
+
+  <h2>تعداد سؤال: {{ count() }} <span class="muted">(حدود {{ minutes() }} دقیقه)</span></h2>
+  <input type="range" min="5" max="100" step="5" [value]="count()" (input)="setCount($event)" aria-label="تعداد سؤال" />
+
+  <h2>حالت تمرین</h2>
+  <div class="modes">
+    @for (m of modes; track m.value) {
+      <button type="button" class="card mode" [attr.aria-pressed]="mode() === m.value" (click)="mode.set(m.value)">
+        <strong>{{ m.title }}</strong>
+        <span class="muted">{{ m.hint }}</span>
+      </button>
+    }
+  </div>
+
+  @if (error(); as message) {
+    <p class="error" role="alert">{{ message }}</p>
+  }
+  <button type="button" class="btn primary start" [disabled]="busy()" (click)="start()">
+    {{ busy() ? 'در حال ساخت تمرین…' : 'شروع تمرین' }}
+  </button>
+</section>

@@ -1,0 +1,12 @@
+.hljs { color: var(--text); }
+.hljs-keyword, .hljs-built_in, .hljs-literal { color: #8250df; }
+.hljs-string, .hljs-regexp { color: #0a7a3c; }
+.hljs-number, .hljs-attr { color: #b45309; }
+.hljs-comment { color: var(--muted); font-style: italic; }
+.hljs-title, .hljs-function { color: #0969da; }
+@media (prefers-color-scheme: dark) {
+  .hljs-keyword, .hljs-built_in, .hljs-literal { color: #c4a7ff; }
+  .hljs-string, .hljs-regexp { color: #7ee2a8; }
+  .hljs-number, .hljs-attr { color: #fbbf24; }
+  .hljs-title, .hljs-function { color: #79c0ff; }
+}
