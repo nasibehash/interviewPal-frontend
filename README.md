@@ -11,6 +11,9 @@ Backend: [interviewPal-backend](https://github.com/nasibehash/interviewPal-backe
   **Interview** (timer, results at the end, self-assessment for short-answer questions) and **Flashcard**.
 - Result page with score by technology and level, weak tags, review of every question and
   "practice the weak questions again".
+- **Algorithms and design patterns** (`/lessons`): 24 lessons, each with a real-world scenario, explanation, complexity,
+  a code sample written for the technology you pick (JavaScript, TypeScript, Angular, React, Next.js or .NET) and exercises.
+  The chosen technology and the answered exercises are remembered in the browser.
 - Progress (history, streak, weak questions) is stored in the browser's `localStorage` until accounts exist.
 - An unfinished session survives a page refresh (`sessionStorage`).
 
