@@ -1,0 +1,64 @@
+@if (evaluation(); as ev) {
+  <section class="card summary">
+    <div class="score" [class.good]="ev.percent >= 60">{{ ev.percent }}٪</div>
+    <div>
+      <h1>{{ ev.correct }} از {{ ev.total }} پاسخ درست</h1>
+      <p class="muted">{{ verdict() }}</p>
+    </div>
+  </section>
+
+  <div class="grid">
+    <section class="card">
+      <h2>به تفکیک تکنولوژی</h2>
+      @for (b of ev.byTechnology; track b.key) {
+        <div class="row"><span>{{ b.key }}</span><span class="muted">{{ b.correct }}/{{ b.total }}</span></div>
+        <div class="meter"><div [style.inline-size.%]="b.percent"></div></div>
+      }
+    </section>
+    <section class="card">
+      <h2>به تفکیک سطح</h2>
+      @for (b of ev.byLevel; track b.key) {
+        <div class="row"><span>{{ levelLabel(b.key) }}</span><span class="muted">{{ b.correct }}/{{ b.total }}</span></div>
+        <div class="meter"><div [style.inline-size.%]="b.percent"></div></div>
+      }
+    </section>
+  </div>
+
+  @if (ev.weakTags.length) {
+    <section class="card">
+      <h2>موضوع‌های ضعیف</h2>
+      <div class="tags">
+        @for (t of ev.weakTags; track t.key) {
+          <span class="tag">{{ t.key }} <span class="muted">{{ t.correct }}/{{ t.total }}</span></span>
+        }
+      </div>
+    </section>
+  }
+
+  @if (store.error(); as message) {
+    <p class="error" role="alert">{{ message }}</p>
+  }
+  <div class="actions">
+    @if (ev.weakQuestionIds.length) {
+      <button class="btn primary" type="button" [disabled]="store.busy()" (click)="retryWeak()">
+        تمرین دوباره با سؤال‌های ضعیف ({{ ev.weakQuestionIds.length }})
+      </button>
+    }
+    <button class="btn" type="button" (click)="newPractice()">تمرین جدید</button>
+    <a class="btn" routerLink="/history">پیشرفت من</a>
+  </div>
+
+  <h2 class="review">مرور سؤال‌ها</h2>
+  @for (r of ev.results; track r.questionId) {
+    @if (byId().get(r.questionId); as q) {
+      <details class="card item" [class.ok]="r.isCorrect" [class.no]="!r.isCorrect">
+        <summary>
+          <span class="mark" aria-hidden="true">{{ r.isCorrect ? '✓' : '✗' }}</span>
+          <span class="visually">{{ r.isCorrect ? 'درست:' : 'نادرست:' }}</span>
+          <span class="qtext" [innerHTML]="q.text | markdown"></span>
+        </summary>
+        <app-answer-panel [answer]="r.answer" />
+      </details>
+    }
+  }
+}

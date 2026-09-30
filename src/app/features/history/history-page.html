@@ -1,0 +1,55 @@
+<h1>پیشرفت من</h1>
+@if (progress.totalSessions() === 0) {
+  <section class="card empty">
+    <p>هنوز تمرینی انجام نداده‌ای.</p>
+    <a class="btn primary" routerLink="/">شروع اولین تمرین</a>
+  </section>
+} @else {
+  <div class="stats">
+    <div class="card"><strong>{{ progress.totalSessions() }}</strong><span class="muted">تمرین</span></div>
+    <div class="card"><strong>{{ progress.averagePercent() }}٪</strong><span class="muted">میانگین نمره</span></div>
+    <div class="card"><strong>{{ progress.streakDays() }}</strong><span class="muted">روز پشت‌سرهم</span></div>
+  </div>
+
+  @if (progress.accuracyByTechnology().length) {
+    <section class="card">
+      <h2>دقت در هر تکنولوژی</h2>
+      @for (a of progress.accuracyByTechnology(); track a.technology) {
+        <div class="row"><span>{{ a.technology }}</span><span class="muted">{{ a.percent }}٪ از {{ a.seen }} پاسخ</span></div>
+        <div class="meter"><div [style.inline-size.%]="a.percent"></div></div>
+      }
+    </section>
+  }
+
+  @if (progress.weakQuestions().length) {
+    <section class="card">
+      <h2>سؤال‌های ضعیف ({{ progress.weakQuestions().length }})</h2>
+      <ul>
+        @for (q of progress.weakQuestions().slice(0, 8); track q.id) {
+          <li>{{ q.text }}</li>
+        }
+      </ul>
+      @if (error(); as message) {
+        <p class="error" role="alert">{{ message }}</p>
+      }
+      <button class="btn primary" type="button" (click)="practiceWeak()">تمرین این سؤال‌ها</button>
+    </section>
+  }
+
+  <section class="card">
+    <h2>آخرین تمرین‌ها</h2>
+    <table>
+      <thead><tr><th>تاریخ</th><th>حالت</th><th>نتیجه</th></tr></thead>
+      <tbody>
+        @for (h of progress.history().slice(0, 15); track h.id) {
+          <tr>
+            <td>{{ h.at | date: 'short' }}</td>
+            <td>{{ modeLabels[h.mode] }}</td>
+            <td>{{ h.correct }}/{{ h.total }} ({{ h.percent }}٪)</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </section>
+  <button class="link" type="button" (click)="clear()">پاک کردن سابقه</button>
+}

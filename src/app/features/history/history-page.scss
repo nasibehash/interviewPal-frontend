@@ -1,0 +1,8 @@
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-block-end: 1rem; .card { display: grid; text-align: center; strong { font-size: 1.8rem; } } }
+section.card { margin-block-end: 1rem; }
+h2 { font-size: 1.05rem; }
+.row { display: flex; justify-content: space-between; margin-block-start: 0.5rem; }
+.meter { block-size: 0.45rem; background: var(--border); border-radius: 99rem; overflow: hidden; div { block-size: 100%; background: var(--primary); } }
+table { inline-size: 100%; border-collapse: collapse; th, td { text-align: start; padding: 0.4rem 0.3rem; border-block-end: 1px solid var(--border); } }
+.empty { text-align: center; }
+.link { font: inherit; background: none; border: 0; color: var(--muted); text-decoration: underline; cursor: pointer; }
