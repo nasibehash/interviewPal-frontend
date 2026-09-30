@@ -1,0 +1,145 @@
+@use '@fontsource-variable/vazirmatn';
+@use './app/shared/hljs-theme';
+
+:root {
+  color-scheme: light dark;
+  --bg: #f6f7fb;
+  --surface: #ffffff;
+  --text: #1b2033;
+  --muted: #5d6580;
+  --border: #dfe2ee;
+  --primary: #4f46e5;
+  --primary-soft: #eceaff;
+  --on-primary: #ffffff;
+  --good: #15803d;
+  --good-soft: #dcfce7;
+  --bad: #b91c1c;
+  --bad-soft: #fee2e2;
+  --warn: #b45309;
+  --warn-soft: #fef3c7;
+  --code-bg: #f1f3f9;
+  --radius: 1rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12141f;
+    --surface: #1b1e2e;
+    --text: #e8eaf5;
+    --muted: #9aa1bd;
+    --border: #2d3148;
+    --primary: #8b83ff;
+    --primary-soft: #2a2856;
+    --on-primary: #12141f;
+    --good: #4ade80;
+    --good-soft: #163524;
+    --bad: #f87171;
+    --bad-soft: #3d1a1d;
+    --warn: #fbbf24;
+    --warn-soft: #3a2c0e;
+    --code-bg: #14172a;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Vazirmatn Variable', system-ui, sans-serif;
+  line-height: 1.8;
+}
+
+h1, h2, h3 {
+  line-height: 1.4;
+  margin: 0 0 0.75rem;
+}
+
+.container {
+  max-inline-size: 60rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.btn {
+  font: inherit;
+  font-weight: 600;
+  padding: 0.55rem 1.2rem;
+  border-radius: 0.7rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+
+  &:hover:not(:disabled) {
+    border-color: var(--primary);
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  &.primary {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: var(--on-primary);
+  }
+}
+
+.chip {
+  font: inherit;
+  padding: 0.25rem 0.85rem;
+  border-radius: 99rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+
+  &[aria-pressed='true'] {
+    background: var(--primary-soft);
+    border-color: var(--primary);
+    color: var(--primary);
+    font-weight: 600;
+  }
+}
+
+.error {
+  background: var(--bad-soft);
+  color: var(--bad);
+  border-radius: 0.7rem;
+  padding: 0.6rem 1rem;
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+pre, code {
+  direction: ltr;
+  unicode-bidi: plaintext;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

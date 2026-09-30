@@ -1,0 +1,15 @@
+<header class="bar">
+  <div class="container bar-inner">
+    <a class="brand" routerLink="/">
+      <span class="logo" aria-hidden="true">IP</span>
+      InterviewPal
+    </a>
+    <nav aria-label="منوی اصلی">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">شروع تمرین</a>
+      <a routerLink="/history" routerLinkActive="active">پیشرفت من</a>
+    </nav>
+  </div>
+</header>
+<main class="container">
+  <router-outlet />
+</main>

@@ -1,0 +1,51 @@
+.bar {
+  background: var(--surface);
+  border-block-end: 1px solid var(--border);
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 10;
+}
+.bar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 0.75rem;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+  direction: ltr;
+}
+.logo {
+  display: grid;
+  place-items: center;
+  inline-size: 2rem;
+  block-size: 2rem;
+  border-radius: 0.6rem;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-size: 0.85rem;
+}
+nav {
+  display: flex;
+  gap: 0.25rem;
+}
+nav a {
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.6rem;
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 500;
+}
+nav a.active {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+main {
+  padding-block: 1.5rem 4rem;
+}
