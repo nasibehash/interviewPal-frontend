@@ -1,0 +1,82 @@
+<a class="back" routerLink="/lessons">← همهٔ درس‌ها</a>
+
+@if (lesson.isLoading() && !lesson.hasValue()) {
+  <p class="muted">در حال بارگذاری…</p>
+} @else if (lesson.error()) {
+  <div class="error" role="alert">
+    درس پیدا نشد یا ارتباط با سرور برقرار نشد.
+    <button class="btn" type="button" (click)="lesson.reload()">تلاش دوباره</button>
+  </div>
+} @else if (lesson.value(); as l) {
+  <header>
+    <div class="meta">
+      <span class="badge">{{ kindLabels[l.kind] }}</span>
+      <span class="badge level-{{ l.level }}">{{ levelLabels[l.level] }}</span>
+      <span class="muted">{{ categoryLabel(l.category) }} · {{ l.estimatedMinutes }} دقیقه</span>
+    </div>
+    <h1>{{ l.title }}</h1>
+    <p class="muted">{{ l.summary }}</p>
+    @if (l.timeComplexity) {
+      <div class="complexity" dir="ltr">
+        <span>زمان: <code>{{ l.timeComplexity }}</code></span>
+        <span>حافظه: <code>{{ l.spaceComplexity }}</code></span>
+      </div>
+    }
+  </header>
+
+  <section class="card">
+    <h2>مثال واقعی</h2>
+    <div class="md" [innerHTML]="l.scenario | markdown"></div>
+  </section>
+
+  <section class="card">
+    <h2>توضیح</h2>
+    <div class="md" [innerHTML]="l.explanation | markdown"></div>
+  </section>
+
+  <section class="card">
+    <h2>کد به زبان {{ technologyLabels[technology.slug()] }}</h2>
+    <div class="row" role="group" aria-label="انتخاب زبان">
+      @for (slug of l.technologies; track slug) {
+        <button type="button" class="chip" [attr.aria-pressed]="technology.slug() === slug" (click)="technology.set(slug)">
+          {{ technologyLabels[slug] ?? slug }}
+        </button>
+      }
+    </div>
+    @if (l.implementation; as impl) {
+      <h3>{{ impl.title }}</h3>
+      <app-code-block [code]="impl.code" [language]="impl.language" />
+      <div class="md walkthrough" [innerHTML]="impl.walkthrough | markdown"></div>
+    }
+  </section>
+
+  <section class="card notes">
+    <div>
+      <h2>کِی استفاده کنم؟</h2>
+      <div class="md" [innerHTML]="l.whenToUse | markdown"></div>
+    </div>
+    @if (l.whenNotToUse) {
+      <div>
+        <h2>کِی نه؟</h2>
+        <div class="md" [innerHTML]="l.whenNotToUse | markdown"></div>
+      </div>
+    }
+    @if (l.commonMistake) {
+      <div class="mistake">
+        <h2>اشتباه رایج</h2>
+        <div class="md" [innerHTML]="l.commonMistake | markdown"></div>
+      </div>
+    }
+  </section>
+
+  <section class="card">
+    <h2>تمرین</h2>
+    <p class="muted">{{ correct() }} جواب درست از {{ l.exercises.length }} (پاسخ داده‌شده: {{ answered() }})</p>
+    @for (exercise of l.exercises; track exercise.id; let i = $index) {
+      <article class="exercise">
+        <h3>سؤال {{ i + 1 }}</h3>
+        <app-lesson-exercise [lessonId]="l.id" [exercise]="exercise" [total]="l.exercises.length" />
+      </article>
+    }
+  </section>
+}

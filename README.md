@@ -11,6 +11,9 @@ Backend: [interviewPal-backend](https://github.com/nasibehash/interviewPal-backe
   **Interview** (timer, results at the end, self-assessment for short-answer questions) and **Flashcard**.
 - Result page with score by technology and level, weak tags, review of every question and
   "practice the weak questions again".
+- **Algorithms and design patterns** (`/lessons`): 24 lessons, each with a real-world scenario, explanation, complexity,
+  a code sample written for the technology you pick (JavaScript, TypeScript, Angular, React, Next.js or .NET) and exercises.
+  The chosen technology and the answered exercises are remembered in the browser.
 - Progress (history, streak, weak questions) is stored in the browser's `localStorage` until accounts exist.
 - An unfinished session survives a page refresh (`sessionStorage`).
 
@@ -23,6 +26,24 @@ npm install
 npm start        # http://localhost:4200, /api is proxied to the backend (proxy.conf.json)
 npm test         # unit tests (Vitest)
 npm run build
+```
+
+## Docker
+
+```bash
+docker build -t interviewpal-web .
+docker run -p 8080:80 -e API_URL=http://host.docker.internal:5161 interviewpal-web
+```
+
+The image builds the app with Node and serves it with nginx: unknown paths fall back to `index.html` (Angular routes),
+hashed files are cached for a year, and `/api` is forwarded to `API_URL` (so the browser sees one origin and no CORS
+setup is needed).
+
+To run the whole app, check out the backend next to this repository and use compose:
+
+```bash
+# interviewPal-backend/  and  interviewPal-frontend/  side by side
+docker compose up --build   # http://localhost:8080
 ```
 
 ## Structure

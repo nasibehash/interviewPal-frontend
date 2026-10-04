@@ -31,6 +31,16 @@ export const routes: Routes = [
     loadComponent: () => import('./features/result/result-page').then((m) => m.ResultPage),
   },
   {
+    path: 'lessons',
+    title: 'الگوریتم و الگوهای طراحی',
+    loadComponent: () => import('./features/lessons/lessons-page').then((m) => m.LessonsPage),
+  },
+  {
+    path: 'lessons/:id',
+    title: 'درس',
+    loadComponent: () => import('./features/lessons/lesson-page').then((m) => m.LessonPage),
+  },
+  {
     path: 'history',
     title: 'پیشرفت من',
     loadComponent: () => import('./features/history/history-page').then((m) => m.HistoryPage),

@@ -3,6 +3,10 @@ import { Injectable, InjectionToken, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
   CheckAnswerResult,
+  CheckExerciseResult,
+  LessonDetail,
+  LessonKind,
+  LessonSummary,
   Evaluation,
   PracticeSession,
   QuestionDetail,
@@ -51,5 +55,22 @@ export class ApiClient {
       reason,
       message,
     });
+  }
+
+  lessons(kind?: LessonKind): Observable<LessonSummary[]> {
+    return this.http.get<LessonSummary[]>(`${this.base}/lessons`, { params: kind ? { kind } : {} });
+  }
+
+  lesson(id: string, technology: string): Observable<LessonDetail> {
+    return this.http.get<LessonDetail>(`${this.base}/lessons/${encodeURIComponent(id)}`, {
+      params: { technology },
+    });
+  }
+
+  checkExercise(lessonId: string, exerciseId: string, choiceId: number): Observable<CheckExerciseResult> {
+    return this.http.post<CheckExerciseResult>(
+      `${this.base}/lessons/${encodeURIComponent(lessonId)}/exercises/${encodeURIComponent(exerciseId)}/check`,
+      { choiceId },
+    );
   }
 }

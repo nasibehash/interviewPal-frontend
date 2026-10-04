@@ -1,0 +1,22 @@
+# Runs the whole app. The backend repository is expected next to this one:
+#   interviewPal-backend/   interviewPal-frontend/
+# Then: docker compose up --build   →   http://localhost:8080
+services:
+  api:
+    build: ../interviewPal-backend
+    volumes:
+      - api-data:/data
+    restart: unless-stopped
+
+  web:
+    build: .
+    environment:
+      API_URL: http://api:8080
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  api-data:

@@ -36,4 +36,17 @@ describe('ApiClient', () => {
     expect(http.expectOne('/api/questions/a/reports').request.body).toEqual({ reason: 'Typo', message: null });
     http.verify();
   });
+
+  it('loads lessons, one lesson in a technology, and checks an exercise', () => {
+    const { api, http } = setup();
+    api.lessons('DesignPattern').subscribe();
+    expect(http.expectOne((r) => r.url === '/api/lessons').request.params.get('kind')).toBe('DesignPattern');
+
+    api.lesson('binary-search', 'nextjs').subscribe();
+    expect(http.expectOne((r) => r.url === '/api/lessons/binary-search').request.params.get('technology')).toBe('nextjs');
+
+    api.checkExercise('binary-search', 'e1', 2).subscribe();
+    expect(http.expectOne('/api/lessons/binary-search/exercises/e1/check').request.body).toEqual({ choiceId: 2 });
+    http.verify();
+  });
 });

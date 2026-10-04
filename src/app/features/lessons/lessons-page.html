@@ -1,0 +1,57 @@
+<h1>یادگیری الگوریتم و الگوهای طراحی</h1>
+<p class="muted">هر درس یک مثال واقعی دارد و کدش را به زبان (یا فریم‌ورک) انتخابی تو می‌بینی.</p>
+
+<section class="card tech" aria-labelledby="tech-heading">
+  <h2 id="tech-heading">به کدام زبان بخوانم؟</h2>
+  <div class="row">
+    @for (slug of technologies; track slug) {
+      <button type="button" class="chip" [attr.aria-pressed]="technology.slug() === slug" (click)="technology.set(slug)">
+        {{ technologyLabels[slug] }}
+      </button>
+    }
+  </div>
+</section>
+
+<div class="tabs" role="tablist" aria-label="نوع درس">
+  @for (k of kinds; track k) {
+    <button type="button" role="tab" [attr.aria-selected]="kind() === k" (click)="kind.set(k)">{{ kindLabels[k] }}</button>
+  }
+</div>
+
+<div class="row filters">
+  <span class="muted">سطح:</span>
+  @for (l of levels; track l) {
+    <button type="button" class="chip" [attr.aria-pressed]="level() === l" (click)="toggleLevel(l)">{{ levelLabels[l] }}</button>
+  }
+  <span class="muted grow">{{ doneCount() }} از {{ totalCount() }} درس کامل شده</span>
+</div>
+
+@if (lessons.isLoading()) {
+  <p class="muted">در حال بارگذاری…</p>
+} @else if (lessons.error()) {
+  <div class="error" role="alert">
+    ارتباط با سرور برقرار نشد.
+    <button class="btn" type="button" (click)="lessons.reload()">تلاش دوباره</button>
+  </div>
+} @else {
+  @for (group of groups(); track group.category) {
+    <h2 class="category">{{ categoryLabel(group.category) }}</h2>
+    <div class="grid">
+      @for (lesson of group.items; track lesson.id) {
+        <a class="card lesson" [routerLink]="['/lessons', lesson.id]">
+          <div class="meta">
+            <span class="badge level-{{ lesson.level }}">{{ levelLabels[lesson.level] }}</span>
+            <span class="muted">{{ lesson.estimatedMinutes }} دقیقه</span>
+            @if (progress.completedIds().has(lesson.id)) {
+              <span class="done" title="کامل شده">✓ کامل</span>
+            }
+          </div>
+          <strong>{{ lesson.title }}</strong>
+          <span class="muted">{{ lesson.summary }}</span>
+        </a>
+      } 
+    </div>
+  } @empty {
+    <p class="muted">درسی با این فیلتر پیدا نشد.</p>
+  }
+}
