@@ -28,6 +28,24 @@ npm test         # unit tests (Vitest)
 npm run build
 ```
 
+## Docker
+
+```bash
+docker build -t interviewpal-web .
+docker run -p 8080:80 -e API_URL=http://host.docker.internal:5161 interviewpal-web
+```
+
+The image builds the app with Node and serves it with nginx: unknown paths fall back to `index.html` (Angular routes),
+hashed files are cached for a year, and `/api` is forwarded to `API_URL` (so the browser sees one origin and no CORS
+setup is needed).
+
+To run the whole app, check out the backend next to this repository and use compose:
+
+```bash
+# interviewPal-backend/  and  interviewPal-frontend/  side by side
+docker compose up --build   # http://localhost:8080
+```
+
 ## Structure
 
 ```
