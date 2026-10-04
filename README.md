@@ -46,6 +46,17 @@ To run the whole app, check out the backend next to this repository and use comp
 docker compose up --build   # http://localhost:8080
 ```
 
+## Deploy on Vercel
+
+`vercel.json` sends `/api/*` to the backend on Render and every other path to `index.html` (Angular routes), so the
+browser talks to one origin and the API needs no CORS setup. Project settings:
+
+- Framework preset: Angular, build command `npm run build`, output directory `dist/interviewpal/browser`
+- Node.js version: 24.x (Angular 22 needs Node 22.22 or newer)
+
+To use another backend, change the destination in `vercel.json`. The free Render plan sleeps after 15 minutes without
+traffic, so the first request after a pause can take about half a minute.
+
 ## Structure
 
 ```
