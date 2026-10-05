@@ -3,7 +3,9 @@
 Angular 22 app for **InterviewPal**: practice technical interview questions (Angular, JavaScript, TypeScript,
 React, Next.js, .NET) in Persian. The UI is right-to-left; code stays left-to-right.
 
-Backend: [interviewPal-backend](https://github.com/nasibehash/interviewPal-backend).
+**Live app:** https://interview-pal-frontend-sable.vercel.app
+
+Backend: [interviewPal-backend](https://github.com/nasibehash/interviewPal-backend) (API: https://interviewpal-backend.onrender.com).
 
 ## Features (phase 1)
 
