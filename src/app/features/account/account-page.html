@@ -1,0 +1,66 @@
+@let user = auth.user();
+@if (user) {
+  <h1>حساب من</h1>
+
+  <section class="card">
+    <h2>{{ user.displayName }}</h2>
+    <p class="muted" dir="ltr">{{ user.email }}</p>
+    <p class="muted">عضو از {{ user.createdAt | date: 'longDate' }}</p>
+    <p>
+      {{ progress.totalSessions() }} تمرین و {{ progress.weakQuestions().length }} سؤال ضعیف روی سرور ذخیره شده است.
+      @if (progress.syncError()) {
+        <span class="error">همگام‌سازی با سرور انجام نشد؛ اطلاعات ممکن است قدیمی باشد.</span>
+      }
+    </p>
+    <button type="button" class="btn" (click)="logout()">خروج</button>
+  </section>
+
+  <section class="card">
+    <h2>تغییر رمز عبور</h2>
+    <p class="muted">بعد از تغییر رمز، همهٔ دستگاه‌ها از حساب خارج می‌شوند و باید دوباره وارد شوی.</p>
+    <form [formRoot]="password">
+      <label>
+        رمز عبور فعلی
+        <input type="password" autocomplete="current-password" dir="ltr" [formField]="password.currentPassword" />
+        <app-field-errors [field]="password.currentPassword" />
+      </label>
+      <label>
+        رمز عبور جدید
+        <input type="password" autocomplete="new-password" dir="ltr" [formField]="password.newPassword" />
+        <app-field-errors [field]="password.newPassword" />
+      </label>
+      <label>
+        تکرار رمز عبور جدید
+        <input type="password" autocomplete="new-password" dir="ltr" [formField]="password.confirmPassword" />
+        <app-field-errors [field]="password.confirmPassword" />
+      </label>
+      @if (passwordError(); as message) {
+        <p class="error" role="alert">{{ message }}</p>
+      }
+      <button class="btn primary" [disabled]="password().submitting()">تغییر رمز عبور</button>
+    </form>
+  </section>
+
+  <section class="card danger">
+    <h2>حذف حساب</h2>
+    <p class="muted">حساب و همهٔ تاریخچه و پیشرفتت برای همیشه پاک می‌شود و برگشت‌پذیر نیست.</p>
+    @if (!confirmingDelete()) {
+      <button type="button" class="btn" (click)="confirmingDelete.set(true)">حذف حساب…</button>
+    } @else {
+      <form [formRoot]="deletion">
+        <label>
+          رمز عبور برای تأیید
+          <input type="password" autocomplete="current-password" dir="ltr" [formField]="deletion.password" />
+          <app-field-errors [field]="deletion.password" />
+        </label>
+        @if (deleteError(); as message) {
+          <p class="error" role="alert">{{ message }}</p>
+        }
+        <div class="row">
+          <button class="btn danger-btn" [disabled]="deletion().submitting()">حذف همیشگی حساب</button>
+          <button type="button" class="btn" (click)="confirmingDelete.set(false)">انصراف</button>
+        </div>
+      </form>
+    }
+  </section>
+}

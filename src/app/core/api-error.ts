@@ -18,7 +18,9 @@ const NETWORK = 'ارتباط با سرور برقرار نشد. دوباره ت
 export function messageFor(status: number, problem?: { detail?: string } | null): string {
   if (status === 0) return NETWORK;
   if (status === 400) return problem?.detail ?? 'درخواست نامعتبر است.';
+  if (status === 401) return 'نشست تو معتبر نیست؛ دوباره وارد شو.';
   if (status === 404) return 'موردی که دنبالش بودی پیدا نشد.';
+  if (status === 409) return 'این مورد قبلاً وجود دارد.';
   if (status === 429) return 'درخواست‌ها زیاد است؛ کمی صبر کن.';
   return status >= 500 ? 'خطای سرور؛ کمی بعد دوباره تلاش کن.' : NETWORK;
 }

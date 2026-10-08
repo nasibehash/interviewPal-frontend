@@ -8,7 +8,7 @@
 | ریپو | github.com/nasibehash/interviewPal-frontend |
 | اپ زنده | interview-pal-frontend-sable.vercel.app |
 | API | interviewpal-backend.onrender.com (ASP.NET Core، ریپوی interviewPal-backend) |
-| وضعیت | فاز ۱ (MVP): بدون ورود به حساب؛ پیشرفت کاربر در مرورگر ذخیره می‌شود |
+| وضعیت | فاز ۲: حساب کاربری (ثبت‌نام، ورود، همگام‌سازی پیشرفت)؛ بدون حساب هم همهٔ بخش‌ها کار می‌کنند |
 
 ## ۱. هدف و دامنهٔ محصول
 
@@ -17,6 +17,7 @@ InterviewPal به برنامه‌نویس کمک می‌کند برای مصاح
 - تمرین مصاحبه: ۳۰۰ سؤال در شش فناوری (Angular، JavaScript، TypeScript، React، Next.js و .NET) در سه سطح جونیور، مید و سنیور و سه حالت تمرین: یادگیری، مصاحبه (با تایمر) و فلش‌کارت.
 - الگوریتم و الگوهای طراحی: ۲۴ درس (۱۴ الگوریتم و ۱۰ الگوی طراحی) که هر کدام مثال واقعی دارد و کدش به زبان یا فریم‌ورک انتخابی کاربر نمایش داده می‌شود، همراه با تمرین.
 - پیشرفت من: تاریخچهٔ تمرین‌ها، میانگین نمره، روزهای پشت‌سرهم و سؤال‌های ضعیف.
+- حساب کاربری: ثبت‌نام و ورود با ایمیل و رمز عبور. با ورود، تاریخچه و پیشرفت درس‌ها روی سرور ذخیره می‌شود و در هر دستگاه در دسترس است؛ داده‌های قبلی همان مرورگر هنگام اولین ورود به حساب منتقل می‌شوند. استفاده از برنامه بدون حساب همچنان ممکن است.
 
 ## ۲. پشتهٔ فناوری و تصمیم‌های اصلی
 
@@ -31,35 +32,39 @@ InterviewPal به برنامه‌نویس کمک می‌کند برای مصاح
 | زبان و جهت | فارسی، `dir="rtl"` و خصوصیت‌های منطقی CSS | یک پایه برای RTL؛ کدها جداگانه LTR نمایش داده می‌شوند |
 | فونت | Vazirmatn (بسته `@fontsource-variable/vazirmatn`) | بدون درخواست به CDN بیرونی |
 | Markdown | `marked` و `DOMPurify` و `highlight.js` | محتوای درس‌ها Markdown است؛ بعد از تبدیل پاک‌سازی (sanitize) می‌شود |
-| تست | Vitest از طریق `ng test` | اجرای سریع و ساده؛ ۴۳ تست واحد |
+| احراز هویت | JWT کوتاه‌عمر در حافظه و refresh token در کوکی httpOnly | توکن دسترسی هیچ‌جا ذخیره نمی‌شود و جاوااسکریپت به refresh token دسترسی ندارد (جلوگیری از سرقت با XSS) |
+| تست | Vitest از طریق `ng test` | اجرای سریع و ساده؛ ۸۴ تست واحد |
 | استایل | SCSS ساده با متغیرهای CSS و تم روشن/تیره | بدون کتابخانهٔ UI؛ حجم کم |
 
-> **چرا ذخیره‌سازی در مرورگر؟**
+> **ذخیره‌سازی بدون حساب و با حساب**
 >
-> فاز ۱ ورود به حساب ندارد. تاریخچه و پیشرفت در `localStorage` و تمرین نیمه‌کاره در `sessionStorage` می‌ماند. همهٔ خواندن و نوشتن‌ها از یک لایهٔ امن (safe-storage) می‌گذرند تا در حالت مرور خصوصی یا ذخیره‌سازی مسدود، برنامه نشکند. وقتی حساب کاربری آمد، همین سرویس‌ها به API وصل می‌شوند و بقیهٔ برنامه تغییر نمی‌کند.
+> کاربر مهمان: تاریخچه و پیشرفت در `localStorage` و تمرین نیمه‌کاره در `sessionStorage` می‌ماند. همهٔ خواندن و نوشتن‌ها از یک لایهٔ امن (safe-storage) می‌گذرند تا در حالت مرور خصوصی یا ذخیره‌سازی مسدود، برنامه نشکند. کاربر واردشده: `ProgressStore` و `LessonProgress` همان API قبلی را نگه می‌دارند ولی منبع داده سرور است؛ پس صفحه‌ها تغییری نکردند (بخش ۵.۴).
 
 ## ۳. ساختار پروژه
 
 ```text
 src/app/
   app.ts / app.html / app.scss   shell: header, nav, router-outlet
-  app.config.ts                  providers: http + interceptor, router features
+  app.config.ts                  providers: http + interceptors, router features, session restore
   app.routes.ts                  lazy routes and guards
   core/                          logic and data, no UI
     models.ts                    TypeScript types of the API contract
     api-client.ts                the only place that talks HTTP (resources + calls)
     api-error.ts                 interceptor: HTTP failure -> ApiError (Persian message)
+    auth-store.ts                user, access token (memory), login/register/logout/restore
+    auth-interceptor.ts          adds the bearer token, refreshes once on 401
+    auth-guards.ts               authGuard / guestGuard
     practice-session.ts          state of the practice in progress
-    progress-store.ts            history and stats (localStorage)
-    lesson-progress.ts           progress of lesson exercises
+    progress-store.ts            history and stats (localStorage or server)
+    lesson-progress.ts           progress of lesson exercises (localStorage or server)
     preferred-technology.ts      the language the learner picked
     self-assessment.ts           "I knew it" -> a gradable answer
     safe-storage.ts              storage reads/writes that never throw
   shared/                        shared components (ts + html + scss each)
     markdown.ts, markdown.pipe.ts, question-view, answer-panel,
-    report-dialog, code-block
+    report-dialog, code-block, field-errors
   features/                      pages, each one lazy loaded
-    setup/  practice/  result/  history/  lessons/
+    setup/  practice/  result/  history/  lessons/  auth/  account/
 docs/
   frontend.md                    this document (source)
   InterviewPal-Frontend.pdf      the same document as PDF
@@ -87,9 +92,12 @@ docs/
 | `/lessons` | فهرست درس‌ها | تب الگوریتم‌ها و الگوهای طراحی، فیلتر سطح |
 | `/lessons/:id` | درس | پارامتر `id` با `withComponentInputBinding` مستقیم به `input()` می‌رسد |
 | `/history` | پیشرفت من | آمار و تاریخچه |
+| `/login` | ورود | guard: کاربر واردشده به `/` یا مسیر `redirect` می‌رود |
+| `/register` | ثبت‌نام | فقط مهمان؛ بعد از موفقیت مستقیم وارد می‌شود |
+| `/account` | حساب من | guard: فقط کاربر واردشده؛ مهمان به `/login?redirect=/account` می‌رود |
 | `**` | — | بازگشت به صفحهٔ اصلی |
 
-guardها تابعی (`CanActivateFn`) هستند و فقط وضعیت `PracticeSessionStore` را می‌خوانند: اگر کاربر مستقیم `/practice` را باز کند و تمرینی نداشته باشد، به `/` هدایت می‌شود.
+guardها تابعی (`CanActivateFn`) هستند. guardهای تمرین فقط وضعیت `PracticeSessionStore` را می‌خوانند: اگر کاربر مستقیم `/practice` را باز کند و تمرینی نداشته باشد، به `/` هدایت می‌شود. `authGuard` و `guestGuard` اول منتظر `auth.ready` (پایان بازیابی نشست) می‌مانند تا با refresh صفحه کاربر واردشده به‌اشتباه به `/login` نرود.
 
 ## ۵. لایهٔ core
 
@@ -131,6 +139,26 @@ idle -> practicing -> (self-assessment) -> submitting -> finished
 | PreferredTechnology | `interviewpal.technology.v1` | زبان انتخابی؛ مقدار نامعتبر به `javascript` برمی‌گردد |
 
 نسخه (`.v1`، `.v2`) در نام کلیدها گذاشته شده تا اگر ساختار داده عوض شد، داده‌های قدیمی بی‌صدا نادیده گرفته شوند و برنامه نشکند.
+
+### ۵.۴ حساب کاربری و همگام‌سازی
+
+**AuthStore** وضعیت کاربر را با signal نگه می‌دارد: `user`، `isLoggedIn` و `ready`. توکن دسترسی (JWT، ۱۵ دقیقه) فقط در حافظهٔ همین سرویس است و در storage نوشته نمی‌شود. refresh token را سرور در کوکی `httpOnly` و `SameSite=Strict` با مسیر `/api/auth` می‌گذارد و جاوااسکریپت آن را نمی‌بیند.
+
+- **بازیابی نشست:** `provideAppInitializer` متد `restore()` را صدا می‌زند. فقط اگر قبلاً نشانهٔ ورود (یک پرچم غیرحساس در storage) ثبت شده باشد، `POST /api/auth/refresh` فرستاده می‌شود؛ مهمان‌ها درخواست اضافه نمی‌فرستند.
+- **`authInterceptor`:** روی درخواست‌های `/api`، هدر `Authorization: Bearer` اضافه می‌کند. با پاسخ ۴۰۱ یک بار refresh می‌زند (چند درخواست هم‌زمان یک refresh مشترک دارند) و درخواست را تکرار می‌کند؛ اگر refresh رد شد، کاربر خارج می‌شود. ترتیب interceptorها `[apiErrorInterceptor, authInterceptor]` است تا خطای ۴۰۱ خام به interceptor احراز هویت برسد.
+- **ورود و ثبت‌نام:** فرم‌ها Signal Forms‌اند. در ثبت‌نام، تکرار رمز با `validate` و `valueOf` به فیلد رمز مقایسه می‌شود (اعتبارسنجی بین‌فیلدی). خطاهای فیلد را کامپوننت مشترک `FieldErrors` نشان می‌دهد.
+- **حساب من:** تغییر رمز (سرور همهٔ نشست‌ها را می‌بندد و کاربر با رمز جدید دوباره وارد می‌شود)، حذف حساب با تأیید رمز و حذف پیشرفت ذخیره‌شده روی سرور.
+
+**همگام‌سازی پیشرفت:** `ProgressStore` و `LessonProgress` با یک `effect` روی `auth.user()` بین دو منبع جابه‌جا می‌شوند.
+
+| وضعیت | منبع داده | رفتار |
+|---|---|---|
+| مهمان | `localStorage` | مثل قبل |
+| ورود | سرور (`/api/me/...`) | با ورود، تاریخچه و پیشرفت درس‌ها بارگذاری می‌شود؛ نتیجهٔ تمرین بعدی را خود سرور هنگام ارزیابی ثبت می‌کند |
+| اولین ورود | `POST /api/me/progress/import` | داده‌های محلی یک‌بار منتقل می‌شوند و بعد از موفقیت از مرورگر پاک می‌شوند |
+| خروج | `localStorage` | دوباره حالت مهمان؛ داده‌های حساب قبلی در مرورگر نمی‌ماند، چون بعد از ورود از سرور خوانده می‌شود و نسخهٔ محلی بعد از انتقال پاک شده است |
+
+تمرین‌های مهمان همچنان ارزیابی می‌شوند؛ فقط ذخیره نمی‌شوند. صفحهٔ نتیجه برای مهمان پیشنهاد ساخت حساب نشان می‌دهد.
 
 ## ۶. صفحه‌ها
 
@@ -190,8 +218,10 @@ idle -> practicing -> (self-assessment) -> submitting -> finished
 | کنترل‌فلو جدید | همهٔ قالب‌ها | `@if`، `@for` با `track`، `@empty` |
 | `input()` / `input.required()` | کامپوننت‌ها و `LessonPage` | ورودی‌های signal؛ با `withComponentInputBinding` پارامتر `:id` مسیر مستقیم به `input` می‌رسد |
 | `computed` و `effect` | storeها و صفحه‌ها | مشتق‌های خالص با `computed`؛ `effect` فقط برای هماهنگ‌سازی با `sessionStorage` و تایمر |
-| Functional interceptor | `apiErrorInterceptor` با `withInterceptors` | تبدیل خطاها به `ApiError` در یک نقطه |
+| Functional interceptor | `apiErrorInterceptor` و `authInterceptor` با `withInterceptors` | تبدیل خطاها به `ApiError` و افزودن/تازه‌سازی توکن در یک نقطه |
 | Router | `withViewTransitions`، `withInMemoryScrolling`، guardهای تابعی، `loadComponent` | انتقال انیمیشنی بین صفحه‌ها، برگرداندن اسکرول و bundle اولیهٔ کوچک |
+| `provideAppInitializer` | `app.config.ts` | بازیابی نشست قبل از اولین رندر؛ guardها با `auth.ready` منتظر همین کار می‌مانند |
+| Signal Forms: `validate` و `valueOf` | `RegisterPage`، `AccountPage` | اعتبارسنجی بین‌فیلدی (تکرار رمز) بدون کد دستی؛ `FieldErrors` پیام‌ها را از `field.errors()` می‌خواند |
 | `inject()` | همه‌جا | بدون constructor injection؛ کار با field initializer و تابع‌های کمکی ساده می‌شود |
 | Vitest با `ng test` | همهٔ تست‌ها | builder `@angular/build:unit-test`؛ بدون Karma و Jasmine |
 
@@ -217,24 +247,41 @@ idle -> practicing -> (self-assessment) -> submitting -> finished
 | POST | `/api/questions/{id}/reports` | گزارش مشکل سؤال |
 | GET | `/api/lessons?kind=` | فهرست درس‌ها |
 | GET | `/api/lessons/{id}?technology=` | درس با کد زبان انتخابی |
-| POST | `/api/lessons/{id}/exercises/{exerciseId}/check` | بررسی یک تمرین درس |
+| POST | `/api/lessons/{id}/exercises/{exerciseId}/check` | بررسی یک تمرین درس (با ورود، نتیجه ذخیره می‌شود) |
+| POST | `/api/auth/register` | ثبت‌نام؛ توکن دسترسی در بدنه و refresh token در کوکی |
+| POST | `/api/auth/login` | ورود (قفل موقت بعد از چند رمز اشتباه و محدودیت تعداد درخواست) |
+| POST | `/api/auth/refresh` | توکن دسترسی جدید و چرخش refresh token |
+| POST | `/api/auth/logout` | پایان نشست و پاک‌کردن کوکی |
+| GET | `/api/auth/me` | اطلاعات کاربر فعلی |
+| POST | `/api/auth/change-password` | تغییر رمز؛ همهٔ نشست‌ها بسته می‌شوند |
+| POST | `/api/auth/delete-account` | حذف حساب و دادهٔ آن با تأیید رمز |
+| GET | `/api/me/progress` | تاریخچه، آمار سؤال‌ها و پیشرفت درس‌های کاربر |
+| POST | `/api/me/progress/import` | انتقال یک‌بارهٔ دادهٔ محلی به حساب |
+| DELETE | `/api/me/progress` | پاک‌کردن پیشرفت ذخیره‌شده |
+
+مسیرهای `/api/me/*` و تغییر رمز و حذف حساب نیاز به هدر `Authorization` دارند. کوکی refresh فقط به `/api/auth` فرستاده می‌شود و چون Vercel (و nginx و پراکسی توسعه) `/api` را روی همان origin پراکسی می‌کنند، مرورگر آن را همان‌سایتی می‌بیند و CORS لازم نیست.
 
 خطاها به‌صورت ProblemDetails می‌آیند. `PracticeSessionStore` پیام فارسی عمومی نشان می‌دهد و صفحه‌ها برای خطای بارگذاری دکمهٔ «تلاش دوباره» دارند.
 
 ## ۱۱. تست
 
-۴۳ تست واحد با Vitest (`npm test`):
+۸۴ تست واحد با Vitest (`npm test`):
 
 - ApiClient: مسیر و بدنهٔ هر درخواست با `HttpTestingController`.
 - PracticeSessionStore: شروع تمرین، ارزیابی فوری در یادگیری، نبودن درخواست در مصاحبه، فاز خودارزیابی، ارسال نهایی، بازگشت بعد از خطا و تمرین خالی.
 - ProgressStore، LessonProgress و PreferredTechnology: ثبت، ماندگاری، پاک‌کردن، streak و مقدار نامعتبر storage.
 - `apiErrorInterceptor`: تبدیل خطاهای HTTP به `ApiError` با پیام فارسی.
+- AuthStore: ورود، ثبت‌نام، بازیابی نشست (با و بدون نشانه)، خروج و تغییر رمز.
+- `authInterceptor`: افزودن توکن، یک refresh مشترک برای چند ۴۰۱ هم‌زمان، تکرار درخواست و خروج بعد از رد شدن refresh.
+- `authGuard` و `guestGuard`: انتظار برای بازیابی نشست و هدایت با `redirect`.
+- همگام‌سازی پیشرفت: جابه‌جایی منبع داده با ورود/خروج و انتقال یک‌بارهٔ داده‌های محلی.
+- صفحه‌های ورود، ثبت‌نام و حساب (Signal Forms، اعتبارسنجی بین‌فیلدی، خطاهای سرور) و پیام‌های فارسی خطای احراز هویت.
 - `ReportDialog` (Signal Form): ارسال دلیل و پیام و جلوگیری از ارسال پیام بیش از ۵۰۰ کاراکتر.
 - `LessonExerciseView`: بازنشانی پاسخ قبلی با `linkedSignal` وقتی تمرین عوض می‌شود.
 - markdown: رنگ‌آمیزی، حذف اسکریپت و `onerror`، escape زبان‌های ناشناخته.
 - SetupPage، LessonsPage و LessonPage: لیست، فیلتر، جست‌وجوی debounce‌شده با حروف عربی/فارسی، انتخاب زبان، گرفتن درس با زبان جدید و بررسی تمرین. بلوک `@defer` در تست با `DeferBlockBehavior.Manual` دستی رندر می‌شود، چون jsdom از `IntersectionObserver` پشتیبانی نمی‌کند.
 
-علاوه بر آن، کل جریان یادگیری یک بار در مرورگر واقعی (Chromium) روی بک‌اند واقعی اجرا و بدون خطای کنسول تأیید شده است.
+علاوه بر آن، کل جریان یادگیری و جریان حساب (ثبت‌نام با انتقال تاریخچه، بازیابی بعد از refresh صفحه، تغییر رمز، حذف حساب و بررسی کوکی httpOnly) یک بار در مرورگر واقعی (Chromium) روی بک‌اند واقعی اجرا و تأیید شده است.
 
 ## ۱۲. اجرا و استقرار
 
@@ -251,13 +298,13 @@ Angular CLI 22 به Node نسخهٔ ۲۲٫۲۲ یا بالاتر نیاز دار
 
 ### ۱۲.۲ Docker
 
-`Dockerfile` دو مرحله دارد: build با Node 24 و سرو با nginx. `nginx.conf.template` مسیرهای Angular را به `index.html` برمی‌گرداند، فایل‌های hash‌دار را یک سال کش می‌کند، `index.html` را کش نمی‌کند و `/api` را به `API_URL` پراکسی می‌کند. `compose.yaml` بک‌اند و فرانت را کنار هم روی `http://localhost:8080` بالا می‌آورد.
+`Dockerfile` دو مرحله دارد: build با Node 24 و سرو با nginx. `nginx.conf.template` مسیرهای Angular را به `index.html` برمی‌گرداند، فایل‌های hash‌دار را یک سال کش می‌کند، `index.html` را کش نمی‌کند و `/api` را به `API_URL` پراکسی می‌کند. `compose.yaml` بک‌اند، PostgreSQL و فرانت را کنار هم روی `http://localhost:8080` بالا می‌آورد.
 
 ### ۱۲.۳ Vercel و Render
 
 - فرانت‌اند روی Vercel: preset Angular، دستور `npm run build`، خروجی `dist/interviewpal/browser` و Node 24.x.
 - `vercel.json` مسیر `/api/*` را به `https://interviewpal-backend.onrender.com` می‌فرستد و بقیهٔ مسیرها را به `index.html`؛ بنابراین مرورگر فقط یک origin می‌بیند و CORS لازم نیست.
-- بک‌اند روی Render با Docker اجرا می‌شود. در پلن رایگان پس از ۱۵ دقیقه بی‌کاری می‌خوابد و اولین درخواست بعدی حدود نیم دقیقه طول می‌کشد.
+- بک‌اند روی Render با Docker اجرا می‌شود. برای حساب کاربری باید دیتابیس PostgreSQL پایدار و متغیرهای `Auth__JwtKey` (حداقل ۳۲ کاراکتر)، `Database__Provider=Postgres` و `ConnectionStrings__Default` تنظیم شود؛ دیسک پلن رایگان Render پایدار نیست و SQLite آن بعد از هر استقرار پاک می‌شود (جزئیات در مستند بک‌اند). در پلن رایگان پس از ۱۵ دقیقه بی‌کاری می‌خوابد و اولین درخواست بعدی حدود نیم دقیقه طول می‌کشد.
 
 ### ۱۲.۴ مستندات
 
@@ -267,7 +314,8 @@ Angular CLI 22 به Node نسخهٔ ۲۲٫۲۲ یا بالاتر نیاز دار
 
 | موضوع | وضعیت فعلی | گام بعدی |
 |---|---|---|
-| حساب کاربری | ندارد؛ پیشرفت فقط در همان مرورگر | ورود، ذخیرهٔ تاریخچه روی سرور و همگام‌سازی چند دستگاه |
+| تأیید ایمیل و فراموشی رمز | ندارد؛ ایمیل تأیید نمی‌شود و رمز فراموش‌شده بازیابی نمی‌شود | ارسال ایمیل (لینک تأیید و بازنشانی رمز) |
+| ورود اجتماعی | ندارد | ورود با Google و GitHub |
 | حالت مصاحبهٔ زمان‌دار | تایمر ساده سمت کلاینت | محاسبهٔ زمان در سرور برای جلوگیری از دستکاری |
 | مرور فاصله‌دار | فقط فهرست سؤال‌های ضعیف | زمان‌بندی مرور بر اساس منحنی فراموشی |
 | پنل ادمین | محتوا با فایل JSON ویرایش می‌شود | پنل مدیریت سؤال و درس و بررسی گزارش‌ها |

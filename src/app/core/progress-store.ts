@@ -1,5 +1,17 @@
-import { Injectable, computed, signal } from '@angular/core';
-import { Evaluation, Level, PracticeMode, PracticeSession, ScoreBreakdown } from './models';
+import { Injectable, computed, effect, inject, signal, untracked } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
+import { ApiClient } from './api-client';
+import { AuthStore } from './auth-store';
+import { LessonProgress } from './lesson-progress';
+import {
+  Evaluation,
+  ImportProgressRequest,
+  Level,
+  PracticeMode,
+  PracticeSession,
+  ScoreBreakdown,
+  ServerProgress,
+} from './models';
 import { readJson, removeKey, writeJson } from './safe-storage';
 
 export interface HistoryEntry {
@@ -30,14 +42,37 @@ const MAX_HISTORY = 100;
 const dayKey = (d: Date): string =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
-/** Learner progress. Without accounts (phase 1) it lives in the browser's localStorage. */
+/**
+ * Learner progress. An anonymous learner's progress lives in the browser's localStorage. A logged-in learner's
+ * progress lives on the server (it records every finished practice itself); the first time a learner logs in, what
+ * the browser collected before is imported into the account and removed from the browser.
+ */
 @Injectable({ providedIn: 'root' })
 export class ProgressStore {
+  private readonly auth = inject(AuthStore);
+  private readonly api = inject(ApiClient);
+  private readonly lessons = inject(LessonProgress);
+
   private readonly _history = signal<HistoryEntry[]>(readJson(() => localStorage, HISTORY_KEY, []));
-  private readonly _stats = signal<Record<string, QuestionStat>>(readJson(() => localStorage, STATS_KEY, {}));
+  private readonly _stats = signal<Record<string, QuestionStat>>(
+    readJson(() => localStorage, STATS_KEY, {}),
+  );
 
   readonly history = this._history.asReadonly();
   readonly stats = this._stats.asReadonly();
+
+  /** True while progress is being loaded from or saved to the server. */
+  readonly syncing = signal(false);
+  /** Set when the server could not be reached; the data on screen may be old. */
+  readonly syncError = signal(false);
+
+  constructor() {
+    // follow the login: load the account's progress when one logs in, go back to the browser's when one logs out
+    effect(() => {
+      const user = this.auth.user();
+      untracked(() => void (user ? this.onLogin() : this.onLogout()));
+    });
+  }
 
   readonly totalSessions = computed(() => this._history().length);
 
@@ -87,6 +122,11 @@ export class ProgressStore {
   });
 
   record(session: PracticeSession, evaluation: Evaluation, now: Date = new Date()): void {
+    if (this.auth.isLoggedIn()) {
+      void this.refresh(); // the server stored the result when it evaluated the practice
+      return;
+    }
+
     const at = now.toISOString();
     const entry: HistoryEntry = {
       id: `${now.getTime()}`,
@@ -124,10 +164,116 @@ export class ProgressStore {
     writeJson(() => localStorage, STATS_KEY, this._stats());
   }
 
-  clear(): void {
+  /** Removes all progress: history, question stats and lesson answers. */
+  async clear(): Promise<void> {
+    if (this.auth.isLoggedIn()) {
+      try {
+        await firstValueFrom(this.api.clearProgress());
+      } catch {
+        this.syncError.set(true);
+        return;
+      }
+    }
     this._history.set([]);
     this._stats.set({});
     removeKey(() => localStorage, HISTORY_KEY);
     removeKey(() => localStorage, STATS_KEY);
+    this.lessons.clear();
+  }
+
+  /** Loads the account's progress from the server. */
+  async refresh(): Promise<void> {
+    this.syncing.set(true);
+    try {
+      this.applyServer(await firstValueFrom(this.api.progress()));
+      this.syncError.set(false);
+    } catch {
+      this.syncError.set(true);
+    } finally {
+      this.syncing.set(false);
+    }
+  }
+
+  private async onLogin(): Promise<void> {
+    await this.importLocal();
+    await this.refresh();
+  }
+
+  private onLogout(): void {
+    this._history.set(readJson(() => localStorage, HISTORY_KEY, []));
+    this._stats.set(readJson(() => localStorage, STATS_KEY, {}));
+    this.lessons.reloadLocal();
+    this.syncError.set(false);
+  }
+
+  /** What the browser collected before the account existed goes to the server once, then leaves the browser. */
+  private async importLocal(): Promise<void> {
+    const history = readJson<HistoryEntry[]>(() => localStorage, HISTORY_KEY, []);
+    const stats = readJson<Record<string, QuestionStat>>(() => localStorage, STATS_KEY, {});
+    const lessons = this.lessons.exportLocal();
+    if (history.length === 0 && Object.keys(stats).length === 0 && lessons.length === 0) return;
+
+    const request: ImportProgressRequest = {
+      history: history
+        .slice(0, 200)
+        .map((h) => ({
+          at: h.at,
+          mode: h.mode,
+          total: h.total,
+          correct: h.correct,
+          byTechnology: h.byTechnology,
+        })),
+      questionStats: Object.entries(stats)
+        .slice(0, 400)
+        .map(([questionId, s]) => ({
+          questionId,
+          seen: s.seen,
+          correct: s.correct,
+          lastCorrect: s.lastCorrect,
+          lastAt: s.lastAt,
+        })),
+      lessons,
+    };
+
+    try {
+      await firstValueFrom(this.api.importProgress(request));
+      removeKey(() => localStorage, HISTORY_KEY);
+      removeKey(() => localStorage, STATS_KEY);
+      this.lessons.clearLocal();
+    } catch {
+      // kept in the browser; the next login tries again
+    }
+  }
+
+  private applyServer(server: ServerProgress): void {
+    this._history.set(
+      server.history.map((h) => ({
+        id: h.id,
+        at: h.at,
+        mode: h.mode,
+        total: h.total,
+        correct: h.correct,
+        percent: h.percent,
+        byTechnology: h.byTechnology,
+      })),
+    );
+    this._stats.set(
+      Object.fromEntries(
+        server.questionStats.map((s) => [
+          s.questionId,
+          {
+            seen: s.seen,
+            correct: s.correct,
+            lastCorrect: s.lastCorrect,
+            lastAt: s.lastAt,
+            technology: s.technology,
+            level: s.level,
+            text: s.text,
+            tags: s.tags,
+          },
+        ]),
+      ),
+    );
+    this.lessons.setFromServer(server.lessons);
   }
 }

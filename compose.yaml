@@ -2,10 +2,31 @@
 #   interviewPal-backend/   interviewPal-frontend/
 # Then: docker compose up --build   →   http://localhost:8080
 services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: interviewpal
+      POSTGRES_PASSWORD: interviewpal
+      POSTGRES_DB: interviewpal
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U interviewpal"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
   api:
     build: ../interviewPal-backend
-    volumes:
-      - api-data:/data
+    environment:
+      Database__Provider: Postgres
+      ConnectionStrings__Default: Host=db;Database=interviewpal;Username=interviewpal;Password=interviewpal
+      # Replace for anything that is not a local trial; at least 32 characters.
+      Auth__JwtKey: ${AUTH_JWT_KEY:-local-compose-only-signing-key-change-me-0123456789}
+    depends_on:
+      db:
+        condition: service_healthy
     restart: unless-stopped
 
   web:
@@ -19,4 +40,4 @@ services:
     restart: unless-stopped
 
 volumes:
-  api-data:
+  db-data:

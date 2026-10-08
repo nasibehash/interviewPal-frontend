@@ -3,11 +3,16 @@ import { Injectable, InjectionToken, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
   CheckAnswerResult,
+  AuthResponse,
   CheckExerciseResult,
+  ImportProgressRequest,
+  ServerProgress,
+  User,
   LessonDetail,
   LessonKind,
   LessonSummary,
   Evaluation,
+  PracticeMode,
   PracticeSession,
   QuestionDetail,
   ReportReason,
@@ -49,8 +54,9 @@ export class ApiClient {
     );
   }
 
-  evaluate(answers: SubmittedAnswer[]): Observable<Evaluation> {
-    return this.http.post<Evaluation>(`${this.base}/practice/evaluate`, { answers });
+  /** `mode` is stored in the history of a logged-in learner (the server records the result itself). */
+  evaluate(answers: SubmittedAnswer[], mode: PracticeMode = 'Learning'): Observable<Evaluation> {
+    return this.http.post<Evaluation>(`${this.base}/practice/evaluate`, { answers, mode });
   }
 
   report(questionId: string, reason: ReportReason, message: string | null): Observable<void> {
@@ -108,5 +114,58 @@ export class ApiClient {
       `${this.base}/lessons/${encodeURIComponent(lessonId)}/exercises/${encodeURIComponent(exerciseId)}/check`,
       { choiceId },
     );
+  }
+
+  // ---- account -------------------------------------------------------------------------------------------------
+  // The refresh token is an httpOnly cookie that only the browser can see; it is sent to /auth/* on its own because
+  // the app and the API share one origin (dev proxy, Vercel rewrite, nginx).
+
+  register(email: string, password: string, displayName: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.base}/auth/register`, {
+      email,
+      password,
+      displayName,
+    });
+  }
+
+  login(email: string, password: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.base}/auth/login`, { email, password });
+  }
+
+  refresh(): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.base}/auth/refresh`, null);
+  }
+
+  logout(): Observable<void> {
+    return this.http.post<void>(`${this.base}/auth/logout`, null);
+  }
+
+  me(): Observable<User> {
+    return this.http.get<User>(`${this.base}/auth/me`);
+  }
+
+  changePassword(currentPassword: string, newPassword: string): Observable<void> {
+    return this.http.post<void>(`${this.base}/auth/change-password`, {
+      currentPassword,
+      newPassword,
+    });
+  }
+
+  deleteAccount(password: string): Observable<void> {
+    return this.http.post<void>(`${this.base}/auth/delete-account`, { password });
+  }
+
+  // ---- progress on the server (needs a login) ------------------------------------------------------------------
+
+  progress(): Observable<ServerProgress> {
+    return this.http.get<ServerProgress>(`${this.base}/me/progress`);
+  }
+
+  importProgress(request: ImportProgressRequest): Observable<void> {
+    return this.http.post<void>(`${this.base}/me/progress/import`, request);
+  }
+
+  clearProgress(): Observable<void> {
+    return this.http.delete<void>(`${this.base}/me/progress`);
   }
 }

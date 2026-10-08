@@ -17,7 +17,10 @@ Backend: [interviewPal-backend](https://github.com/nasibehash/interviewPal-backe
   a code sample written for the technology you pick (JavaScript, TypeScript, Angular, React, Next.js or .NET) and exercises.
   The chosen technology and the answered exercises are remembered in the browser. The list has a debounced search
   that treats Arabic and Persian letters alike.
-- Progress (history, streak, weak questions) is stored in the browser's `localStorage` until accounts exist.
+- **Accounts** (`/register`, `/login`, `/account`): sign up with email and password. A logged-in learner's history,
+  weak questions and lesson progress live on the server and follow them across devices; what the browser collected
+  before is imported once at the first login. Without an account everything still works and is kept in the browser's
+  `localStorage`.
 - An unfinished session survives a page refresh (`sessionStorage`).
 
 ## Development
@@ -49,6 +52,13 @@ To run the whole app, check out the backend next to this repository and use comp
 docker compose up --build   # http://localhost:8080
 ```
 
+## Accounts and sessions
+
+The access token (JWT, 15 minutes) lives only in memory. The refresh token is an `httpOnly`, `SameSite=Strict` cookie
+scoped to `/api/auth`, so scripts cannot read it. That cookie only works when the browser sees the app and the API on
+one origin, which is why Vercel (`vercel.json`), nginx and the dev proxy all forward `/api` instead of calling the
+backend directly. The backend needs a persistent database and a signing key in production; see its README.
+
 ## Deploy on Vercel
 
 `vercel.json` sends `/api/*` to the backend on Render and every other path to `index.html` (Angular routes), so the
@@ -63,7 +73,7 @@ traffic, so the first request after a pause can take about half a minute.
 ## Angular 22 features used
 
 Zoneless change detection and `OnPush` (both defaults in 22), `httpResource` (inside `ApiClient`), Signal Forms
-(`form`, `[formField]`, `[formRoot]`, `debounce`), `linkedSignal`, `@defer (on viewport)`, `@let`, signal inputs with
+(`form`, `[formField]`, `[formRoot]`, `debounce`, cross-field `validate`), `provideAppInitializer`, `linkedSignal`, `@defer (on viewport)`, `@let`, signal inputs with
 `withComponentInputBinding`, functional interceptors and guards, router view transitions, and Vitest through `ng test`.
 The full list with where and why is in [docs/frontend.md](docs/frontend.md).
 
@@ -71,9 +81,9 @@ The full list with where and why is in [docs/frontend.md](docs/frontend.md).
 
 ```
 src/app/
-  core/       models, API client (resources + calls), error interceptor, practice-session and progress stores
+  core/       models, API client, error and auth interceptors, auth store and guards, practice-session and progress stores
   shared/     markdown rendering (sanitized), question view, answer panel, report dialog, code block
-  features/   setup, practice, result, history, lessons pages (lazy loaded)
+  features/   setup, practice, result, history, lessons, auth (login, register) and account pages (lazy loaded)
 docs/         implementation document (frontend.md) and its PDF
 ```
 

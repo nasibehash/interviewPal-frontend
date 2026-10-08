@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { AuthStore } from '../../core/auth-store';
 import { PracticeSessionStore } from '../../core/practice-session';
 import { ProgressStore } from '../../core/progress-store';
 
@@ -12,11 +13,16 @@ import { ProgressStore } from '../../core/progress-store';
 })
 export class HistoryPage {
   protected readonly progress = inject(ProgressStore);
+  protected readonly auth = inject(AuthStore);
   private readonly store = inject(PracticeSessionStore);
   private readonly router = inject(Router);
   protected readonly error = this.store.error;
 
-  protected readonly modeLabels = { Learning: 'یادگیری', Interview: 'مصاحبه', Flashcard: 'فلش‌کارت' };
+  protected readonly modeLabels = {
+    Learning: 'یادگیری',
+    Interview: 'مصاحبه',
+    Flashcard: 'فلش‌کارت',
+  };
 
   protected async practiceWeak(): Promise<void> {
     await this.store.startFromQuestions(this.progress.weakQuestions().map((q) => q.id));
@@ -25,9 +31,9 @@ export class HistoryPage {
     }
   }
 
-  protected clear(): void {
-    if (confirm('همهٔ سابقهٔ تمرین‌ها پاک شود؟')) {
-      this.progress.clear();
+  protected async clear(): Promise<void> {
+    if (confirm('همهٔ تاریخچه و پیشرفت پاک شود؟')) {
+      await this.progress.clear();
     }
   }
 }

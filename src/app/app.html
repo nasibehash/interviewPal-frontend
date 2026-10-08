@@ -5,10 +5,25 @@
       InterviewPal
     </a>
     <nav aria-label="منوی اصلی">
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">شروع تمرین</a>
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+        >شروع تمرین</a
+      >
       <a routerLink="/lessons" routerLinkActive="active">الگوریتم و الگوها</a>
       <a routerLink="/history" routerLinkActive="active">پیشرفت من</a>
     </nav>
+    <div class="account">
+      @switch (auth.status()) {
+        @case ('authenticated') {
+          <a routerLink="/account" routerLinkActive="active" class="user">{{
+            auth.user()?.displayName
+          }}</a>
+        }
+        @case ('anonymous') {
+          <a routerLink="/login" routerLinkActive="active">ورود</a>
+          <a routerLink="/register" class="btn primary small">ثبت‌نام</a>
+        }
+      }
+    </div>
   </div>
 </header>
 <main class="container">

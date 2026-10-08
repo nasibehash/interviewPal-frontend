@@ -145,3 +145,60 @@ export interface CheckExerciseResult {
   correctChoiceId: number;
   explanation: string;
 }
+
+export interface User {
+  id: string;
+  email: string;
+  displayName: string;
+  createdAt: string;
+}
+
+export interface AuthResponse {
+  accessToken: string;
+  expiresAt: string;
+  user: User;
+}
+
+/** Practice history, per-question stats and lesson answers of the logged-in learner, as the server keeps them. */
+export interface ServerProgress {
+  history: {
+    id: string;
+    at: string;
+    mode: PracticeMode;
+    total: number;
+    correct: number;
+    percent: number;
+    byTechnology: ScoreBreakdown[];
+  }[];
+  questionStats: {
+    questionId: string;
+    technology: string;
+    level: Level;
+    text: string;
+    tags: string[];
+    seen: number;
+    correct: number;
+    lastCorrect: boolean;
+    lastAt: string;
+  }[];
+  lessons: { lessonId: string; total: number; answers: Record<string, boolean> }[];
+}
+
+/** What the browser collected before the learner had an account; the server adds it to the account. */
+export interface ImportProgressRequest {
+  history: {
+    at: string;
+    mode: PracticeMode;
+    total: number;
+    correct: number;
+    byTechnology: ScoreBreakdown[];
+  }[];
+  questionStats: {
+    questionId: string;
+    seen: number;
+    correct: number;
+    lastCorrect: boolean;
+    lastAt: string;
+  }[];
+  lessons: { lessonId: string; answers: Record<string, boolean> }[];
+}
