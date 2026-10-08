@@ -15,7 +15,8 @@ Backend: [interviewPal-backend](https://github.com/nasibehash/interviewPal-backe
   "practice the weak questions again".
 - **Algorithms and design patterns** (`/lessons`): 24 lessons, each with a real-world scenario, explanation, complexity,
   a code sample written for the technology you pick (JavaScript, TypeScript, Angular, React, Next.js or .NET) and exercises.
-  The chosen technology and the answered exercises are remembered in the browser.
+  The chosen technology and the answered exercises are remembered in the browser. The list has a debounced search
+  that treats Arabic and Persian letters alike.
 - Progress (history, streak, weak questions) is stored in the browser's `localStorage` until accounts exist.
 - An unfinished session survives a page refresh (`sessionStorage`).
 
@@ -59,11 +60,28 @@ browser talks to one origin and the API needs no CORS setup. Project settings:
 To use another backend, change the destination in `vercel.json`. The free Render plan sleeps after 15 minutes without
 traffic, so the first request after a pause can take about half a minute.
 
+## Angular 22 features used
+
+Zoneless change detection and `OnPush` (both defaults in 22), `httpResource` (inside `ApiClient`), Signal Forms
+(`form`, `[formField]`, `[formRoot]`, `debounce`), `linkedSignal`, `@defer (on viewport)`, `@let`, signal inputs with
+`withComponentInputBinding`, functional interceptors and guards, router view transitions, and Vitest through `ng test`.
+The full list with where and why is in [docs/frontend.md](docs/frontend.md).
+
 ## Structure
 
 ```
 src/app/
-  core/       models, API client, practice-session and progress stores
-  shared/     markdown rendering (sanitized), question view, answer panel, report dialog
-  features/   setup, practice, result, history pages (lazy loaded)
+  core/       models, API client (resources + calls), error interceptor, practice-session and progress stores
+  shared/     markdown rendering (sanitized), question view, answer panel, report dialog, code block
+  features/   setup, practice, result, history, lessons pages (lazy loaded)
+docs/         implementation document (frontend.md) and its PDF
 ```
+
+Files follow the Angular 20+ style guide: no `.component` suffix (`lesson-page.ts`, class `LessonPage`), and every
+component has its own `.ts`, `.html` and `.scss`.
+
+## Documentation
+
+The implementation document lives in [`docs/frontend.md`](docs/frontend.md) and is also available as a PDF:
+[`docs/InterviewPal-Frontend.pdf`](docs/InterviewPal-Frontend.pdf). Update both together with the README when a
+change affects how the app works.
