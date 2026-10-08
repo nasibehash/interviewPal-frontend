@@ -1,6 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { AuthStore } from '../../core/auth-store';
 import { PracticeSessionStore } from '../../core/practice-session';
 import { AnswerPanel } from '../../shared/answer-panel';
 import { MarkdownPipe } from '../../shared/markdown.pipe';
@@ -15,7 +14,6 @@ import { Level } from '../../core/models';
 })
 export class ResultPage {
   protected readonly store = inject(PracticeSessionStore);
-  protected readonly auth = inject(AuthStore);
   private readonly router = inject(Router);
 
   protected readonly evaluation = computed(() => this.store.evaluation());

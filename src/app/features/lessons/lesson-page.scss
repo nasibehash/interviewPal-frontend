@@ -62,23 +62,6 @@ h3 {
   flex-wrap: wrap;
   margin-block-end: 0.5rem;
 }
-.md :first-child {
-  margin-block-start: 0;
-}
-.md :last-child {
-  margin-block-end: 0;
-}
-.md pre {
-  background: var(--code-bg);
-  border-radius: 0.6rem;
-  padding: 0.8rem;
-  overflow-x: auto;
-}
-.md code:not(pre code) {
-  background: var(--code-bg);
-  padding: 0 0.3rem;
-  border-radius: 0.3rem;
-}
 .walkthrough {
   margin-block-start: 0.75rem;
 }

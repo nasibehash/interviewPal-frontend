@@ -4,13 +4,15 @@
       <span class="logo" aria-hidden="true">IP</span>
       InterviewPal
     </a>
-    <nav aria-label="منوی اصلی">
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-        >شروع تمرین</a
-      >
-      <a routerLink="/lessons" routerLinkActive="active">الگوریتم و الگوها</a>
-      <a routerLink="/history" routerLinkActive="active">پیشرفت من</a>
-    </nav>
+    @if (auth.isLoggedIn()) {
+      <nav aria-label="منوی اصلی">
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+          >شروع تمرین</a
+        >
+        <a routerLink="/lessons" routerLinkActive="active">الگوریتم و الگوها</a>
+        <a routerLink="/history" routerLinkActive="active">پیشرفت من</a>
+      </nav>
+    }
     <div class="account">
       @switch (auth.status()) {
         @case ('authenticated') {

@@ -64,7 +64,7 @@ export class AccountPage {
           this.deleteError.set(null);
           try {
             await this.auth.deleteAccount(field().value().password);
-            await this.router.navigateByUrl('/');
+            await this.router.navigateByUrl('/login');
           } catch (e) {
             this.deleteError.set(
               e instanceof ApiError && e.status === 400 ? 'رمز عبور درست نیست.' : 'حساب حذف نشد. دوباره تلاش کن.',
@@ -77,6 +77,6 @@ export class AccountPage {
 
   protected async logout(): Promise<void> {
     await this.auth.logout();
-    await this.router.navigateByUrl('/');
+    await this.router.navigateByUrl('/login');
   }
 }
