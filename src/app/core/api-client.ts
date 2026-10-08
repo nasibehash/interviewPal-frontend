@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResourceRef, httpResource } from '@angular/common/http';
 import { Injectable, InjectionToken, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
@@ -39,7 +39,10 @@ export class ApiClient {
     return this.http.get<QuestionDetail>(`${this.base}/questions/${encodeURIComponent(id)}`);
   }
 
-  check(questionId: string, answer: Omit<SubmittedAnswer, 'questionId'>): Observable<CheckAnswerResult> {
+  check(
+    questionId: string,
+    answer: Omit<SubmittedAnswer, 'questionId'>,
+  ): Observable<CheckAnswerResult> {
     return this.http.post<CheckAnswerResult>(
       `${this.base}/practice/questions/${encodeURIComponent(questionId)}/check`,
       answer,
@@ -51,11 +54,40 @@ export class ApiClient {
   }
 
   report(questionId: string, reason: ReportReason, message: string | null): Observable<void> {
-    return this.http.post<void>(`${this.base}/questions/${encodeURIComponent(questionId)}/reports`, {
-      reason,
-      message,
-    });
+    return this.http.post<void>(
+      `${this.base}/questions/${encodeURIComponent(questionId)}/reports`,
+      {
+        reason,
+        message,
+      },
+    );
   }
+
+  // ---- reads as resources -------------------------------------------------------------------------------------
+  // httpResource re-requests by itself when a signal read inside the request function changes, and exposes
+  // value / isLoading / error / reload as signals. The factories live here so components never build URLs.
+  // Call them from an injection context (a field initializer).
+
+  technologiesResource(): HttpResourceRef<Technology[]> {
+    return httpResource<Technology[]>(() => `${this.base}/technologies`, { defaultValue: [] });
+  }
+
+  lessonsResource(): HttpResourceRef<LessonSummary[]> {
+    return httpResource<LessonSummary[]>(() => `${this.base}/lessons`, { defaultValue: [] });
+  }
+
+  /** The lesson with the implementation for `technology`; changing either signal fetches it again. */
+  lessonResource(
+    id: () => string,
+    technology: () => string,
+  ): HttpResourceRef<LessonDetail | undefined> {
+    return httpResource<LessonDetail>(() => ({
+      url: `${this.base}/lessons/${encodeURIComponent(id())}`,
+      params: { technology: technology() },
+    }));
+  }
+
+  // ---- reads as observables -------------------------------------------------------------------------------------
 
   lessons(kind?: LessonKind): Observable<LessonSummary[]> {
     return this.http.get<LessonSummary[]>(`${this.base}/lessons`, { params: kind ? { kind } : {} });
@@ -67,7 +99,11 @@ export class ApiClient {
     });
   }
 
-  checkExercise(lessonId: string, exerciseId: string, choiceId: number): Observable<CheckExerciseResult> {
+  checkExercise(
+    lessonId: string,
+    exerciseId: string,
+    choiceId: number,
+  ): Observable<CheckExerciseResult> {
     return this.http.post<CheckExerciseResult>(
       `${this.base}/lessons/${encodeURIComponent(lessonId)}/exercises/${encodeURIComponent(exerciseId)}/check`,
       { choiceId },
