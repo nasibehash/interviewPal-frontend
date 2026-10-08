@@ -1,4 +1,4 @@
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, inject, input, linkedSignal, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { ApiClient } from '../../core/api-client';
 import { LessonProgress } from '../../core/lesson-progress';
@@ -8,48 +8,8 @@ import { MarkdownPipe } from '../../shared/markdown.pipe';
 @Component({
   selector: 'app-lesson-exercise',
   imports: [MarkdownPipe],
-  template: `
-    <div class="text" [innerHTML]="exercise().text | markdown"></div>
-    <ul class="choices">
-      @for (c of exercise().choices; track c.id) {
-        <li>
-          <button
-            type="button"
-            class="choice {{ stateOf(c.id) }}"
-            [disabled]="busy() || result() !== null"
-            (click)="choose(c.id)"
-            [innerHTML]="c.text | markdown"
-          ></button>
-        </li>
-      }
-    </ul>
-    @if (result(); as r) {
-      <p class="verdict" [class.ok]="r.isCorrect" [class.no]="!r.isCorrect" role="status">
-        {{ r.isCorrect ? 'درست بود!' : 'اشتباه بود.' }}
-      </p>
-      <div class="explanation" [innerHTML]="r.explanation | markdown"></div>
-      <button type="button" class="btn" (click)="retry()">دوباره امتحان کن</button>
-    }
-    @if (error()) {
-      <p class="error" role="alert">ارتباط با سرور برقرار نشد. دوباره تلاش کن.</p>
-    }
-  `,
-  styles: `
-    .text :first-child { margin-block-start: 0; }
-    .choices { list-style: none; padding: 0; margin: 0.75rem 0; display: grid; gap: 0.5rem; }
-    .choice { font: inherit; text-align: start; inline-size: 100%; padding: 0.6rem 0.9rem; border-radius: 0.7rem; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; }
-    .choice :first-child { margin: 0; }
-    .choice.picked { border-color: var(--primary); background: var(--primary-soft); }
-    .choice.correct { border-color: var(--good); background: var(--good-soft); }
-    .choice.wrong { border-color: var(--bad); background: var(--bad-soft); }
-    .choice:disabled { cursor: default; }
-    .verdict { font-weight: 700; margin-block: 0.5rem; }
-    .verdict.ok { color: var(--good); }
-    .verdict.no { color: var(--bad); }
-    .explanation { background: var(--code-bg); border-radius: 0.7rem; padding: 0.7rem 1rem; margin-block-end: 0.75rem; }
-    .explanation :first-child { margin-block-start: 0; }
-    .explanation :last-child { margin-block-end: 0; }
-  `,
+  templateUrl: './lesson-exercise.html',
+  styleUrl: './lesson-exercise.scss',
 })
 export class LessonExerciseView {
   readonly lessonId = input.required<string>();
@@ -59,8 +19,16 @@ export class LessonExerciseView {
   private readonly api = inject(ApiClient);
   private readonly progress = inject(LessonProgress);
 
-  protected readonly picked = signal<number | null>(null);
-  protected readonly result = signal<CheckExerciseResult | null>(null);
+  // linkedSignal: writable like a signal, but resets to `null` whenever the `exercise` input changes,
+  // so a reused component instance never shows the previous exercise's answer.
+  protected readonly picked = linkedSignal<LessonExercise, number | null>({
+    source: this.exercise,
+    computation: () => null,
+  });
+  protected readonly result = linkedSignal<LessonExercise, CheckExerciseResult | null>({
+    source: this.exercise,
+    computation: () => null,
+  });
   protected readonly busy = signal(false);
   protected readonly error = signal(false);
 
@@ -78,7 +46,9 @@ export class LessonExerciseView {
     this.busy.set(true);
     this.error.set(false);
     try {
-      const result = await firstValueFrom(this.api.checkExercise(this.lessonId(), this.exercise().id, choiceId));
+      const result = await firstValueFrom(
+        this.api.checkExercise(this.lessonId(), this.exercise().id, choiceId),
+      );
       this.result.set(result);
       this.progress.record(this.lessonId(), this.exercise().id, result.isCorrect, this.total());
     } catch {

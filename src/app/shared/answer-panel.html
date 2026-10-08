@@ -1,0 +1,20 @@
+<section class="short">
+  <h3>جواب کوتاه (برای گفتن در مصاحبه)</h3>
+  <p>{{ answer().shortAnswer }}</p>
+</section>
+<section>
+  <h3>توضیح کامل</h3>
+  <div class="md" [innerHTML]="answer().explanation | markdown"></div>
+</section>
+@if (answer().commonMistake; as mistake) {
+  <section class="mistake">
+    <h3>اشتباه رایج</h3>
+    <div class="md" [innerHTML]="mistake | markdown"></div>
+  </section>
+}
+@if (answer().followUpQuestion; as followUp) {
+  <section class="followup">
+    <h3>سؤال بعدیِ مصاحبه‌کننده</h3>
+    <div class="md" [innerHTML]="followUp | markdown"></div>
+  </section>
+}

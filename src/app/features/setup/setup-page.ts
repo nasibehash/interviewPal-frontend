@@ -1,9 +1,8 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { httpResource } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { LEVELS, Level, PracticeMode, Technology } from '../../core/models';
+import { ApiClient } from '../../core/api-client';
+import { LEVELS, Level, PracticeMode } from '../../core/models';
 import { PracticeSessionStore } from '../../core/practice-session';
-import { API_BASE_URL } from '../../core/api-client';
 import { LEVEL_LABELS } from '../../shared/question-view';
 
 const SECONDS_PER_QUESTION = 80;
@@ -22,9 +21,8 @@ const MODES: { value: PracticeMode; title: string; hint: string }[] = [
 export class SetupPage {
   private readonly store = inject(PracticeSessionStore);
   private readonly router = inject(Router);
-  private readonly base = inject(API_BASE_URL);
 
-  protected readonly technologies = httpResource<Technology[]>(() => `${this.base}/technologies`);
+  protected readonly technologies = inject(ApiClient).technologiesResource();
   protected readonly modes = MODES;
   protected readonly levels = LEVELS;
   protected readonly levelLabels = LEVEL_LABELS;
@@ -36,14 +34,20 @@ export class SetupPage {
   protected readonly busy = this.store.busy;
   protected readonly error = this.store.error;
 
-  protected readonly minutes = computed(() => Math.ceil((this.count() * SECONDS_PER_QUESTION) / 60));
+  protected readonly minutes = computed(() =>
+    Math.ceil((this.count() * SECONDS_PER_QUESTION) / 60),
+  );
 
   protected toggleTech(slug: string): void {
-    this.selectedTechs.update((s) => (s.includes(slug) ? s.filter((x) => x !== slug) : [...s, slug]));
+    this.selectedTechs.update((s) =>
+      s.includes(slug) ? s.filter((x) => x !== slug) : [...s, slug],
+    );
   }
 
   protected toggleLevel(level: Level): void {
-    this.selectedLevels.update((s) => (s.includes(level) ? s.filter((x) => x !== level) : [...s, level]));
+    this.selectedLevels.update((s) =>
+      s.includes(level) ? s.filter((x) => x !== level) : [...s, level],
+    );
   }
 
   protected setCount(event: Event): void {

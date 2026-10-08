@@ -10,7 +10,7 @@
   </div>
 } @else {
   <div class="techs">
-    @for (t of technologies.value() ?? []; track t.slug) {
+    @for (t of technologies.value(); track t.slug) {
       <button
         type="button"
         class="card tech"
@@ -29,19 +29,39 @@
   <h2>سطح</h2>
   <div class="row">
     @for (l of levels; track l) {
-      <button type="button" class="chip" [attr.aria-pressed]="selectedLevels().includes(l)" (click)="toggleLevel(l)">
+      <button
+        type="button"
+        class="chip"
+        [attr.aria-pressed]="selectedLevels().includes(l)"
+        (click)="toggleLevel(l)"
+      >
         {{ levelLabels[l] }}
       </button>
     }
   </div>
 
-  <h2>تعداد سؤال: {{ count() }} <span class="muted">(حدود {{ minutes() }} دقیقه)</span></h2>
-  <input type="range" min="5" max="100" step="5" [value]="count()" (input)="setCount($event)" aria-label="تعداد سؤال" />
+  <h2>
+    تعداد سؤال: {{ count() }} <span class="muted">(حدود {{ minutes() }} دقیقه)</span>
+  </h2>
+  <input
+    type="range"
+    min="5"
+    max="100"
+    step="5"
+    [value]="count()"
+    (input)="setCount($event)"
+    aria-label="تعداد سؤال"
+  />
 
   <h2>حالت تمرین</h2>
   <div class="modes">
     @for (m of modes; track m.value) {
-      <button type="button" class="card mode" [attr.aria-pressed]="mode() === m.value" (click)="mode.set(m.value)">
+      <button
+        type="button"
+        class="card mode"
+        [attr.aria-pressed]="mode() === m.value"
+        (click)="mode.set(m.value)"
+      >
         <strong>{{ m.title }}</strong>
         <span class="muted">{{ m.hint }}</span>
       </button>

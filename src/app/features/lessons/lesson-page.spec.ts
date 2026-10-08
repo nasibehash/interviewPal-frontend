@@ -1,6 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { TestBed } from '@angular/core/testing';
+import { DeferBlockBehavior, DeferBlockState, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { LessonProgress } from '../../core/lesson-progress';
@@ -35,7 +35,10 @@ describe('LessonPage', () => {
   beforeEach(() => {
     localStorage.clear();
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])] });
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+      deferBlockBehavior: DeferBlockBehavior.Manual, // jsdom has no IntersectionObserver: render @defer by hand
+    });
   });
 
   const render = async () => {
@@ -68,6 +71,9 @@ describe('LessonPage', () => {
 
   it('checks an exercise and records the result', async () => {
     const { fixture, http, el } = await render();
+    expect(el.querySelector('app-lesson-exercise')).toBeNull(); // exercises wait until they scroll into view
+    const [exercises] = await fixture.getDeferBlocks();
+    await exercises.render(DeferBlockState.Complete);
     el.querySelectorAll<HTMLButtonElement>('.choice')[1].click();
     const req = http.expectOne('/api/lessons/binary-search/exercises/e1/check');
     expect(req.request.body).toEqual({ choiceId: 1 });

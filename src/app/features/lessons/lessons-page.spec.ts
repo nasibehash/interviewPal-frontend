@@ -2,9 +2,9 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { LessonSummary } from '../../core/models';
-import { LessonsPage } from './lessons-page';
+import { LessonsPage, normalize } from './lessons-page';
 
 const lesson = (over: Partial<LessonSummary>): LessonSummary => ({
   id: 'binary-search',
@@ -74,5 +74,35 @@ describe('LessonsPage', () => {
     fixture.detectChanges();
     expect(react.getAttribute('aria-pressed')).toBe('true');
     expect(localStorage.getItem('interviewpal.technology.v1')).toBe('"react"');
+  });
+
+  it('searches titles, summaries and tags, treating Arabic and Persian letters alike', async () => {
+    const fixture = await render([
+      lesson({ id: 'lru', title: 'کش LRU', category: 'caching', tags: ['cache'] }),
+      lesson({ id: 'bfs', title: 'BFS', category: 'graphs', tags: ['graph'] }),
+    ]);
+    vi.useFakeTimers(); // after rendering: whenStable() would wait forever on fake timers
+    try {
+      const el: HTMLElement = fixture.nativeElement;
+      const input = el.querySelector<HTMLInputElement>('input.search')!;
+
+      input.value = 'كش'; // Arabic kaf, the Persian title uses "ک"
+      input.dispatchEvent(new Event('input'));
+      await vi.advanceTimersByTimeAsync(300); // the form debounces typing by 250 ms
+      fixture.detectChanges();
+      expect(titles(el)).toEqual(['کش LRU']);
+
+      input.value = 'graph';
+      input.dispatchEvent(new Event('input'));
+      await vi.advanceTimersByTimeAsync(300);
+      fixture.detectChanges();
+      expect(titles(el)).toEqual(['BFS']);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('normalize unifies Arabic letters', () => {
+    expect(normalize(' كتاب يك ')).toBe('کتاب یک');
   });
 });
