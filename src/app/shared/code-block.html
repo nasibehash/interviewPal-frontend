@@ -1,0 +1,7 @@
+<div class="head">
+  <span class="lang">{{ language() }}</span>
+  <button type="button" class="copy" (click)="copy()">
+    {{ copied() ? 'کپی شد ✓' : 'کپی کد' }}
+  </button>
+</div>
+<pre dir="ltr" tabindex="0"><code class="hljs" [innerHTML]="html()"></code></pre>

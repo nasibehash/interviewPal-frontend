@@ -5,7 +5,12 @@
   <h2 id="tech-heading">به کدام زبان بخوانم؟</h2>
   <div class="row">
     @for (slug of technologies; track slug) {
-      <button type="button" class="chip" [attr.aria-pressed]="technology.slug() === slug" (click)="technology.set(slug)">
+      <button
+        type="button"
+        class="chip"
+        [attr.aria-pressed]="technology.slug() === slug"
+        (click)="technology.set(slug)"
+      >
         {{ technologyLabels[slug] }}
       </button>
     }
@@ -14,14 +19,26 @@
 
 <div class="tabs" role="tablist" aria-label="نوع درس">
   @for (k of kinds; track k) {
-    <button type="button" role="tab" [attr.aria-selected]="kind() === k" (click)="kind.set(k)">{{ kindLabels[k] }}</button>
+    <button type="button" role="tab" [attr.aria-selected]="kind() === k" (click)="kind.set(k)">
+      {{ kindLabels[k] }}
+    </button>
   }
 </div>
+
+<input
+  type="search"
+  class="search"
+  [formField]="search.query"
+  placeholder="جست‌وجو در درس‌ها (مثلاً: کش، گراف، Observer)"
+  aria-label="جست‌وجو در درس‌ها"
+/>
 
 <div class="row filters">
   <span class="muted">سطح:</span>
   @for (l of levels; track l) {
-    <button type="button" class="chip" [attr.aria-pressed]="level() === l" (click)="toggleLevel(l)">{{ levelLabels[l] }}</button>
+    <button type="button" class="chip" [attr.aria-pressed]="level() === l" (click)="toggleLevel(l)">
+      {{ levelLabels[l] }}
+    </button>
   }
   <span class="muted grow">{{ doneCount() }} از {{ totalCount() }} درس کامل شده</span>
 </div>
@@ -49,7 +66,7 @@
           <strong>{{ lesson.title }}</strong>
           <span class="muted">{{ lesson.summary }}</span>
         </a>
-      } 
+      }
     </div>
   } @empty {
     <p class="muted">درسی با این فیلتر پیدا نشد.</p>

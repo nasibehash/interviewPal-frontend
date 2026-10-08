@@ -1,0 +1,11 @@
+<div class="meta">
+  <span class="badge level-{{ question().level }}">{{ levelLabel() }}</span>
+  <span class="badge">{{ question().technology }}</span>
+  @for (tag of question().tags; track tag) {
+    <span class="tag">{{ tag }}</span>
+  }
+</div>
+<div class="text" [innerHTML]="question().text | markdown"></div>
+@if (code(); as html) {
+  <pre dir="ltr"><code class="hljs" [innerHTML]="html"></code></pre>
+}

@@ -8,6 +8,7 @@
     <button class="btn" type="button" (click)="lesson.reload()">تلاش دوباره</button>
   </div>
 } @else if (lesson.value(); as l) {
+  @let tech = technology.slug();
   <header>
     <div class="meta">
       <span class="badge">{{ kindLabels[l.kind] }}</span>
@@ -18,8 +19,12 @@
     <p class="muted">{{ l.summary }}</p>
     @if (l.timeComplexity) {
       <div class="complexity" dir="ltr">
-        <span>زمان: <code>{{ l.timeComplexity }}</code></span>
-        <span>حافظه: <code>{{ l.spaceComplexity }}</code></span>
+        <span
+          >زمان: <code>{{ l.timeComplexity }}</code></span
+        >
+        <span
+          >حافظه: <code>{{ l.spaceComplexity }}</code></span
+        >
       </div>
     }
   </header>
@@ -35,10 +40,15 @@
   </section>
 
   <section class="card">
-    <h2>کد به زبان {{ technologyLabels[technology.slug()] }}</h2>
+    <h2>کد به زبان {{ technologyLabels[tech] }}</h2>
     <div class="row" role="group" aria-label="انتخاب زبان">
       @for (slug of l.technologies; track slug) {
-        <button type="button" class="chip" [attr.aria-pressed]="technology.slug() === slug" (click)="technology.set(slug)">
+        <button
+          type="button"
+          class="chip"
+          [attr.aria-pressed]="tech === slug"
+          (click)="technology.set(slug)"
+        >
           {{ technologyLabels[slug] ?? slug }}
         </button>
       }
@@ -71,12 +81,22 @@
 
   <section class="card">
     <h2>تمرین</h2>
-    <p class="muted">{{ correct() }} جواب درست از {{ l.exercises.length }} (پاسخ داده‌شده: {{ answered() }})</p>
-    @for (exercise of l.exercises; track exercise.id; let i = $index) {
-      <article class="exercise">
-        <h3>سؤال {{ i + 1 }}</h3>
-        <app-lesson-exercise [lessonId]="l.id" [exercise]="exercise" [total]="l.exercises.length" />
-      </article>
+    <p class="muted">
+      {{ correct() }} جواب درست از {{ l.exercises.length }} (پاسخ داده‌شده: {{ answered() }})
+    </p>
+    @defer (on viewport) {
+      @for (exercise of l.exercises; track exercise.id; let i = $index) {
+        <article class="exercise">
+          <h3>سؤال {{ i + 1 }}</h3>
+          <app-lesson-exercise
+            [lessonId]="l.id"
+            [exercise]="exercise"
+            [total]="l.exercises.length"
+          />
+        </article>
+      }
+    } @placeholder {
+      <p class="muted placeholder">تمرین‌ها وقتی به این بخش برسی بارگذاری می‌شوند…</p>
     }
   </section>
 }

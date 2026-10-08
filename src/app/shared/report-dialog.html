@@ -1,0 +1,24 @@
+@if (state() === 'sent') {
+  <p class="muted">ممنون! گزارشت ثبت شد.</p>
+} @else if (!open()) {
+  <button type="button" class="link" (click)="open.set(true)">گزارش مشکل این سؤال</button>
+} @else {
+  <form [formRoot]="report">
+    <select [formField]="report.reason" aria-label="دلیل گزارش">
+      @for (r of reasons; track r.value) {
+        <option [value]="r.value">{{ r.label }}</option>
+      }
+    </select>
+    <input [formField]="report.message" placeholder="توضیح (اختیاری)" aria-label="توضیح" />
+    <button class="btn primary" [disabled]="report().submitting() || report().invalid()">
+      ارسال
+    </button>
+    <button class="btn" type="button" (click)="open.set(false)">انصراف</button>
+    @if (report.message().invalid()) {
+      <span class="error">توضیح حداکثر ۵۰۰ کاراکتر باشد.</span>
+    }
+    @if (state() === 'error') {
+      <span class="error">ارسال نشد، دوباره تلاش کن.</span>
+    }
+  </form>
+}

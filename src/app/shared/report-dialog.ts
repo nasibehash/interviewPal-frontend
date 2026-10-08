@@ -1,5 +1,5 @@
 import { Component, inject, input, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormField, FormRoot, form, maxLength, required } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
 import { ApiClient } from '../core/api-client';
 import { ReportReason } from '../core/models';
@@ -12,36 +12,17 @@ const REASONS: { value: ReportReason; label: string }[] = [
   { value: 'Other', label: 'مورد دیگر' },
 ];
 
+interface ReportModel {
+  reason: ReportReason;
+  message: string;
+}
+
+/** Report a wrong / outdated / unclear question. A signal form: the model is a plain signal. */
 @Component({
   selector: 'app-report-dialog',
-  imports: [FormsModule],
-  template: `
-    @if (state() === 'sent') {
-      <p class="muted">ممنون! گزارشت ثبت شد.</p>
-    } @else if (!open()) {
-      <button type="button" class="link" (click)="open.set(true)">گزارش مشکل این سؤال</button>
-    } @else {
-      <form (submit)="send($event)">
-        <select [(ngModel)]="reason" name="reason" aria-label="دلیل گزارش">
-          @for (r of reasons; track r.value) {
-            <option [value]="r.value">{{ r.label }}</option>
-          }
-        </select>
-        <input [(ngModel)]="message" name="message" maxlength="500" placeholder="توضیح (اختیاری)" aria-label="توضیح" />
-        <button class="btn primary" [disabled]="state() === 'sending'">ارسال</button>
-        <button class="btn" type="button" (click)="open.set(false)">انصراف</button>
-        @if (state() === 'error') {
-          <span class="error">ارسال نشد، دوباره تلاش کن.</span>
-        }
-      </form>
-    }
-  `,
-  styles: `
-    .link { font: inherit; background: none; border: 0; color: var(--muted); text-decoration: underline; cursor: pointer; padding: 0; }
-    form { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
-    select, input { font: inherit; padding: 0.4rem 0.6rem; border-radius: 0.6rem; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
-    input { flex: 1; min-inline-size: 10rem; }
-  `,
+  imports: [FormField, FormRoot],
+  templateUrl: './report-dialog.html',
+  styleUrl: './report-dialog.scss',
 })
 export class ReportDialog {
   readonly questionId = input.required<string>();
@@ -49,18 +30,29 @@ export class ReportDialog {
 
   protected readonly reasons = REASONS;
   protected readonly open = signal(false);
-  protected readonly state = signal<'idle' | 'sending' | 'sent' | 'error'>('idle');
-  protected reason: ReportReason = 'WrongAnswer';
-  protected message = '';
+  protected readonly state = signal<'idle' | 'sent' | 'error'>('idle');
 
-  protected async send(event: Event): Promise<void> {
-    event.preventDefault();
-    this.state.set('sending');
-    try {
-      await firstValueFrom(this.api.report(this.questionId(), this.reason, this.message.trim() || null));
-      this.state.set('sent');
-    } catch {
-      this.state.set('error');
-    }
-  }
+  protected readonly report = form(
+    signal<ReportModel>({ reason: 'WrongAnswer', message: '' }),
+    (path) => {
+      required(path.reason);
+      maxLength(path.message, 500);
+    },
+    {
+      // <form [formRoot]> calls this on submit, only when the form is valid
+      submission: {
+        action: async (field) => {
+          const { reason, message } = field().value();
+          try {
+            await firstValueFrom(
+              this.api.report(this.questionId(), reason, message.trim() || null),
+            );
+            this.state.set('sent');
+          } catch {
+            this.state.set('error');
+          }
+        },
+      },
+    },
+  );
 }
