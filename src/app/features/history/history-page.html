@@ -1,10 +1,4 @@
 <h1>پیشرفت من</h1>
-@if (auth.status() === 'anonymous') {
-  <p class="card tip">
-    پیشرفتت فقط در همین مرورگر ذخیره می‌شود. <a routerLink="/register">ثبت‌نام</a> یا
-    <a routerLink="/login">ورود</a> کن تا روی سرور بماند و در هر دستگاهی داشته باشی.
-  </p>
-}
 @if (progress.syncError()) {
   <p class="error" role="alert">همگام‌سازی با سرور انجام نشد؛ اطلاعات ممکن است قدیمی باشد.</p>
 }

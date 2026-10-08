@@ -1,7 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { AuthStore } from '../../core/auth-store';
 import { PracticeSessionStore } from '../../core/practice-session';
 import { ProgressStore } from '../../core/progress-store';
 
@@ -13,7 +12,6 @@ import { ProgressStore } from '../../core/progress-store';
 })
 export class HistoryPage {
   protected readonly progress = inject(ProgressStore);
-  protected readonly auth = inject(AuthStore);
   private readonly store = inject(PracticeSessionStore);
   private readonly router = inject(Router);
   protected readonly error = this.store.error;

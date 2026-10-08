@@ -79,3 +79,29 @@ main {
 .small {
   padding: 0.3rem 0.9rem;
 }
+
+// Phones: brand and account share the first row, the menu gets its own scrollable row
+@media (max-width: 40rem) {
+  .bar-inner {
+    gap: 0.5rem 0.75rem;
+    padding-block: 0.5rem;
+  }
+  nav {
+    order: 3;
+    inline-size: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-block-end: 0.15rem;
+  }
+  nav a {
+    white-space: nowrap;
+    flex: 1 0 auto;
+    text-align: center;
+  }
+  .user {
+    max-inline-size: 7rem;
+  }
+  main {
+    padding-block: 1rem 3rem;
+  }
+}

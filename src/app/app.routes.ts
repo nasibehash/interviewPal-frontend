@@ -14,37 +14,45 @@ const hasFinishedSession: CanActivateFn = () =>
   inject(PracticeSessionStore).phase() === 'finished' ? true : inject(Router).createUrlTree(['/']);
 
 export const routes: Routes = [
+  // Everything except login and register needs an account; the guard waits for the session restore first
   {
     path: '',
-    title: 'شروع تمرین',
-    loadComponent: () => import('./features/setup/setup-page').then((m) => m.SetupPage),
-  },
-  {
-    path: 'practice',
-    title: 'تمرین',
-    canActivate: [hasActiveSession],
-    loadComponent: () => import('./features/practice/practice-page').then((m) => m.PracticePage),
-  },
-  {
-    path: 'result',
-    title: 'نتیجه',
-    canActivate: [hasFinishedSession],
-    loadComponent: () => import('./features/result/result-page').then((m) => m.ResultPage),
-  },
-  {
-    path: 'lessons',
-    title: 'الگوریتم و الگوهای طراحی',
-    loadComponent: () => import('./features/lessons/lessons-page').then((m) => m.LessonsPage),
-  },
-  {
-    path: 'lessons/:id',
-    title: 'درس',
-    loadComponent: () => import('./features/lessons/lesson-page').then((m) => m.LessonPage),
-  },
-  {
-    path: 'history',
-    title: 'پیشرفت من',
-    loadComponent: () => import('./features/history/history-page').then((m) => m.HistoryPage),
+    canActivateChild: [authGuard],
+    children: [
+      {
+        path: '',
+        title: 'شروع تمرین',
+        loadComponent: () => import('./features/setup/setup-page').then((m) => m.SetupPage),
+      },
+      {
+        path: 'practice',
+        title: 'تمرین',
+        canActivate: [hasActiveSession],
+        loadComponent: () =>
+          import('./features/practice/practice-page').then((m) => m.PracticePage),
+      },
+      {
+        path: 'result',
+        title: 'نتیجه',
+        canActivate: [hasFinishedSession],
+        loadComponent: () => import('./features/result/result-page').then((m) => m.ResultPage),
+      },
+      {
+        path: 'lessons',
+        title: 'الگوریتم و الگوهای طراحی',
+        loadComponent: () => import('./features/lessons/lessons-page').then((m) => m.LessonsPage),
+      },
+      {
+        path: 'lessons/:id',
+        title: 'درس',
+        loadComponent: () => import('./features/lessons/lesson-page').then((m) => m.LessonPage),
+      },
+      {
+        path: 'history',
+        title: 'پیشرفت من',
+        loadComponent: () => import('./features/history/history-page').then((m) => m.HistoryPage),
+      },
+    ],
   },
   {
     path: 'login',

@@ -19,8 +19,10 @@ Backend: [interviewPal-backend](https://github.com/nasibehash/interviewPal-backe
   that treats Arabic and Persian letters alike.
 - **Accounts** (`/register`, `/login`, `/account`): sign up with email and password. A logged-in learner's history,
   weak questions and lesson progress live on the server and follow them across devices; what the browser collected
-  before is imported once at the first login. Without an account everything still works and is kept in the browser's
-  `localStorage`.
+  before is imported once at the first login. **An account is required**: without one only the login and register pages
+  open (every other route is behind `authGuard`, and the API answers `401`).
+- **Responsive**: the layout works from 360px phones to desktop without horizontal scrolling; on phones the menu gets its
+  own scrollable row.
 - An unfinished session survives a page refresh (`sessionStorage`).
 
 ## Development

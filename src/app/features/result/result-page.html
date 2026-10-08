@@ -46,12 +46,6 @@
   @if (store.error(); as message) {
     <p class="error" role="alert">{{ message }}</p>
   }
-  @if (auth.status() === 'anonymous') {
-    <p class="card tip">
-      این نتیجه فقط در همین مرورگر ذخیره شد. <a routerLink="/register">با ثبت‌نام</a> تاریخچه‌ات روی
-      سرور می‌ماند.
-    </p>
-  }
   <div class="actions">
     @if (ev.weakQuestionIds.length) {
       <button class="btn primary" type="button" [disabled]="store.busy()" (click)="retryWeak()">

@@ -132,9 +132,66 @@ h1, h2, h3 {
   outline-offset: 2px;
 }
 
+// Rendered Markdown arrives through innerHTML, so component styles cannot reach it: these rules live here
+.md {
+  overflow-wrap: anywhere;
+
+  > :first-child {
+    margin-block-start: 0;
+  }
+  > :last-child {
+    margin-block-end: 0;
+  }
+  pre {
+    background: var(--code-bg);
+    border-radius: 0.6rem;
+    padding: 0.8rem;
+    overflow-x: auto;
+    max-inline-size: 100%;
+  }
+  code:not(pre code) {
+    background: var(--code-bg);
+    padding: 0 0.3rem;
+    border-radius: 0.3rem;
+    overflow-wrap: anywhere;
+  }
+  img {
+    max-inline-size: 100%;
+    block-size: auto;
+  }
+  table {
+    display: block;
+    max-inline-size: 100%;
+    overflow-x: auto;
+  }
+}
+
 pre, code {
   direction: ltr;
   unicode-bidi: plaintext;
+}
+
+// Phones: roomier touch targets, and 16px fields so iOS does not zoom in on focus
+@media (max-width: 40rem) {
+  .container {
+    padding-inline: 0.75rem;
+  }
+  .card {
+    padding: 1rem;
+  }
+  .btn,
+  .chip {
+    min-block-size: 2.75rem;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+  }
+  input,
+  select,
+  textarea {
+    font-size: 1rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
