@@ -1,0 +1,29 @@
+<h1>ورود</h1>
+
+@if (changed() === '1') {
+  <p class="info" role="status">رمز عبور عوض شد. با رمز جدید وارد شو.</p>
+}
+
+<form [formRoot]="login">
+  <label>
+    ایمیل
+    <input type="email" autocomplete="email" dir="ltr" [formField]="login.email" [attr.aria-invalid]="login.email().touched() && login.email().invalid()" />
+    <app-field-errors [field]="login.email" />
+  </label>
+
+  <label>
+    رمز عبور
+    <input type="password" autocomplete="current-password" dir="ltr" [formField]="login.password" [attr.aria-invalid]="login.password().touched() && login.password().invalid()" />
+    <app-field-errors [field]="login.password" />
+  </label>
+
+  @if (error(); as message) {
+    <p class="error" role="alert">{{ message }}</p>
+  }
+
+  <button class="btn primary" [disabled]="login().submitting()">
+    {{ login().submitting() ? 'در حال ورود…' : 'ورود' }}
+  </button>
+</form>
+
+<p class="switch muted">حساب نداری؟ <a routerLink="/register" [queryParams]="{ redirect: redirect() }">ثبت‌نام</a></p>

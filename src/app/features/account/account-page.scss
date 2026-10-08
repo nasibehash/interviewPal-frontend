@@ -1,0 +1,46 @@
+:host {
+  display: block;
+  max-inline-size: 36rem;
+  margin-inline: auto;
+}
+h1 {
+  font-size: 1.4rem;
+}
+h2 {
+  font-size: 1.05rem;
+  margin-block-end: 0.25rem;
+}
+section.card {
+  margin-block-end: 1rem;
+}
+form {
+  display: grid;
+  gap: 0.8rem;
+  margin-block-start: 0.75rem;
+}
+label {
+  display: grid;
+  gap: 0.25rem;
+  font-weight: 600;
+}
+input {
+  font: inherit;
+  padding: 0.5rem 0.8rem;
+  border-radius: 0.7rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+}
+.row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.danger {
+  border-color: var(--bad);
+}
+.danger-btn {
+  background: var(--bad);
+  border-color: var(--bad);
+  color: var(--surface);
+}

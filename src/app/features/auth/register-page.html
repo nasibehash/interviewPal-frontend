@@ -1,0 +1,39 @@
+<h1>ثبت‌نام</h1>
+<p class="muted">با داشتن حساب، تاریخچه و سؤال‌های ضعیفت روی سرور می‌ماند و در هر دستگاهی در دسترسی. آنچه تا حالا در همین مرورگر تمرین کرده‌ای هم به حسابت اضافه می‌شود.</p>
+
+<form [formRoot]="register">
+  <label>
+    نام
+    <input type="text" autocomplete="name" [formField]="register.displayName" [attr.aria-invalid]="register.displayName().touched() && register.displayName().invalid()" />
+    <app-field-errors [field]="register.displayName" />
+  </label>
+
+  <label>
+    ایمیل
+    <input type="email" autocomplete="email" dir="ltr" [formField]="register.email" [attr.aria-invalid]="register.email().touched() && register.email().invalid()" />
+    <app-field-errors [field]="register.email" />
+  </label>
+
+  <label>
+    رمز عبور
+    <input type="password" autocomplete="new-password" dir="ltr" [formField]="register.password" [attr.aria-invalid]="register.password().touched() && register.password().invalid()" />
+    <span class="hint muted">حداقل ۸ کاراکتر؛ فقط عدد نباشد.</span>
+    <app-field-errors [field]="register.password" />
+  </label>
+
+  <label>
+    تکرار رمز عبور
+    <input type="password" autocomplete="new-password" dir="ltr" [formField]="register.confirmPassword" [attr.aria-invalid]="register.confirmPassword().touched() && register.confirmPassword().invalid()" />
+    <app-field-errors [field]="register.confirmPassword" />
+  </label>
+
+  @if (error(); as message) {
+    <p class="error" role="alert">{{ message }}</p>
+  }
+
+  <button class="btn primary" [disabled]="register().submitting()">
+    {{ register().submitting() ? 'در حال ساخت حساب…' : 'ساخت حساب' }}
+  </button>
+</form>
+
+<p class="switch muted">حساب داری؟ <a routerLink="/login" [queryParams]="{ redirect: redirect() }">ورود</a></p>

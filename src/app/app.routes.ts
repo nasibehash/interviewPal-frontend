@@ -1,5 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router, Routes } from '@angular/router';
+import { authGuard, guestGuard } from './core/auth-guards';
 import { PracticeSessionStore } from './core/practice-session';
 
 const hasActiveSession: CanActivateFn = () => {
@@ -44,6 +45,24 @@ export const routes: Routes = [
     path: 'history',
     title: 'پیشرفت من',
     loadComponent: () => import('./features/history/history-page').then((m) => m.HistoryPage),
+  },
+  {
+    path: 'login',
+    title: 'ورود',
+    canActivate: [guestGuard],
+    loadComponent: () => import('./features/auth/login-page').then((m) => m.LoginPage),
+  },
+  {
+    path: 'register',
+    title: 'ثبت‌نام',
+    canActivate: [guestGuard],
+    loadComponent: () => import('./features/auth/register-page').then((m) => m.RegisterPage),
+  },
+  {
+    path: 'account',
+    title: 'حساب من',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/account/account-page').then((m) => m.AccountPage),
   },
   { path: '**', redirectTo: '' },
 ];

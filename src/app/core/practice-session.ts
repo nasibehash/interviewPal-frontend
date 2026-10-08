@@ -193,7 +193,7 @@ export class PracticeSessionStore {
     this.phase.set('submitting');
     await this.run(async () => {
       const answers = await this.completeAnswers(session.questions);
-      const evaluation = await firstValueFrom(this.api.evaluate(answers));
+      const evaluation = await firstValueFrom(this.api.evaluate(answers, session.mode));
       this.evaluation.set(evaluation);
       this.progress.record(session, evaluation);
       this.phase.set('finished');
@@ -252,7 +252,9 @@ export class PracticeSessionStore {
     try {
       await action();
     } catch (e) {
-      this.error.set(e instanceof Error && e.message ? e.message : 'ارتباط با سرور برقرار نشد. دوباره تلاش کن.');
+      this.error.set(
+        e instanceof Error && e.message ? e.message : 'ارتباط با سرور برقرار نشد. دوباره تلاش کن.',
+      );
     } finally {
       this.busy.set(false);
     }
