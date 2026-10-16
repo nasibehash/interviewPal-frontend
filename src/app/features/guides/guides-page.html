@@ -1,0 +1,40 @@
+<h1>راهنمای Angular برای سنیور</h1>
+<p class="muted">
+  هر مبحث کوتاه است: ایدهٔ اصلی، یک مثال کامل و نکته‌هایی که در مصاحبه و پروژهٔ واقعی فرق می‌گذارند.
+  @if (total() > 0) {
+    {{ total() }} مبحث، حدود {{ minutes() }} دقیقه.
+  }
+</p>
+
+<input
+  type="search"
+  class="search"
+  [formField]="search.query"
+  placeholder="جست‌وجو (مثلاً: switchMap، OnPush، interceptor)"
+  aria-label="جست‌وجو در مبحث‌ها"
+/>
+
+@if (catalog.isLoading() && !catalog.hasValue()) {
+  <p class="muted">در حال بارگذاری…</p>
+} @else if (catalog.error()) {
+  <div class="error" role="alert">
+    فهرست مبحث‌ها بارگذاری نشد.
+    <button class="btn" type="button" (click)="catalog.reload()">تلاش دوباره</button>
+  </div>
+} @else {
+  @for (section of sections(); track section.group.id) {
+    <h2 class="group">{{ section.group.title }}</h2>
+    <p class="muted group-note">{{ section.group.description }}</p>
+    <div class="grid">
+      @for (topic of section.topics; track topic.slug) {
+        <a class="card topic" [routerLink]="['/guides', topic.slug]">
+          <strong>{{ topic.title }}</strong>
+          <span class="muted">{{ topic.summary }}</span>
+          <span class="minutes muted">{{ topic.minutes }} دقیقه</span>
+        </a>
+      }
+    </div>
+  } @empty {
+    <p class="muted">مبحثی با این جست‌وجو پیدا نشد.</p>
+  }
+}

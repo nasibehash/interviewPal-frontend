@@ -1,0 +1,183 @@
+{
+  "groups": [
+    {
+      "id": "rxjs",
+      "title": "RxJS",
+      "description": "جریان داده، زمان و لغو؛ رایج‌ترین جای باگ در پروژه‌های Angular"
+    },
+    {
+      "id": "signals",
+      "title": "Signals و واکنش‌پذیری",
+      "description": "state، مشتق‌ها و ورودی/خروجی‌های مدرن"
+    },
+    {
+      "id": "templates",
+      "title": "قالب و رندر",
+      "description": "کنترل‌فلو، change detection و content projection"
+    },
+    {
+      "id": "architecture",
+      "title": "معماری",
+      "description": "DI، state و مسیریابی"
+    },
+    {
+      "id": "data",
+      "title": "داده و فرم",
+      "description": "HTTP و فرم‌ها"
+    },
+    {
+      "id": "quality",
+      "title": "کیفیت",
+      "description": "کارایی و تست"
+    }
+  ],
+  "topics": [
+    {
+      "slug": "rxjs-basics",
+      "group": "rxjs",
+      "title": "Observable، تنبل‌بودن و Cold/Hot",
+      "summary": "Observable چیست، چرا lazy است و تفاوتش با Promise",
+      "minutes": 4
+    },
+    {
+      "slug": "rxjs-operators",
+      "group": "rxjs",
+      "title": "اپراتورهای پرکاربرد",
+      "summary": "map، debounceTime، distinctUntilChanged، scan و بقیه",
+      "minutes": 5
+    },
+    {
+      "slug": "rxjs-flattening",
+      "group": "rxjs",
+      "title": "switchMap، mergeMap، concatMap و exhaustMap",
+      "summary": "انتخاب درست اپراتور بر اساس هم‌زمانی",
+      "minutes": 5
+    },
+    {
+      "slug": "rxjs-combining",
+      "group": "rxjs",
+      "title": "ترکیب جریان‌ها",
+      "summary": "combineLatest، forkJoin، withLatestFrom، merge",
+      "minutes": 5
+    },
+    {
+      "slug": "rxjs-subjects",
+      "group": "rxjs",
+      "title": "Subject و shareReplay",
+      "summary": "جریان hot و جلوگیری از درخواست تکراری",
+      "minutes": 5
+    },
+    {
+      "slug": "rxjs-errors",
+      "group": "rxjs",
+      "title": "خطا، retry و catchError",
+      "summary": "نگه‌داشتن جریان زنده بعد از خطا",
+      "minutes": 4
+    },
+    {
+      "slug": "rxjs-memory",
+      "group": "rxjs",
+      "title": "مدیریت subscription",
+      "summary": "async pipe، toSignal و takeUntilDestroyed",
+      "minutes": 4
+    },
+    {
+      "slug": "rxjs-signals-interop",
+      "group": "rxjs",
+      "title": "RxJS و Signals کنار هم",
+      "summary": "toSignal، toObservable و rxResource",
+      "minutes": 5
+    },
+    {
+      "slug": "signals-core",
+      "group": "signals",
+      "title": "signal، computed و effect",
+      "summary": "سه ابزار اصلی و قاعدهٔ استفاده از effect",
+      "minutes": 4
+    },
+    {
+      "slug": "signals-linked-resource",
+      "group": "signals",
+      "title": "linkedSignal و httpResource",
+      "summary": "state بازنشانی‌شونده و داده async reactive",
+      "minutes": 4
+    },
+    {
+      "slug": "signal-io",
+      "group": "signals",
+      "title": "input، model، output و viewChild",
+      "summary": "جایگزین‌های مبتنی بر signal برای decoratorها",
+      "minutes": 4
+    },
+    {
+      "slug": "control-flow-defer",
+      "group": "templates",
+      "title": "کنترل‌فلو مدرن و defer",
+      "summary": "کنترل‌فلو مدرن و بارگذاری تنبل",
+      "minutes": 4
+    },
+    {
+      "slug": "change-detection",
+      "group": "templates",
+      "title": "Change Detection، OnPush و Zoneless",
+      "summary": "چه وقت و چرا قالب رندر می‌شود",
+      "minutes": 5
+    },
+    {
+      "slug": "content-projection",
+      "group": "templates",
+      "title": "Content Projection",
+      "summary": "ng-content، ng-template و hostDirectives",
+      "minutes": 4
+    },
+    {
+      "slug": "di",
+      "group": "architecture",
+      "title": "Dependency Injection",
+      "summary": "injectorهای سلسله‌مراتبی، توکن و providerها",
+      "minutes": 5
+    },
+    {
+      "slug": "state-architecture",
+      "group": "architecture",
+      "title": "State و ساختار feature",
+      "summary": "سرویس با signal، smart/dumb و optimistic update",
+      "minutes": 5
+    },
+    {
+      "slug": "routing",
+      "group": "architecture",
+      "title": "Router مدرن",
+      "summary": "guard و resolver تابعی، lazy و input binding",
+      "minutes": 5
+    },
+    {
+      "slug": "http-interceptors",
+      "group": "data",
+      "title": "HttpClient و Interceptor",
+      "summary": "توکن، refresh یک‌باره و کنترل مرکزی",
+      "minutes": 4
+    },
+    {
+      "slug": "forms",
+      "group": "data",
+      "title": "فرم‌ها",
+      "summary": "Reactive Forms تایپ‌شده و Signal Forms",
+      "minutes": 6
+    },
+    {
+      "slug": "performance",
+      "group": "quality",
+      "title": "کارایی",
+      "summary": "bundle، رندر، تصویر و hydration",
+      "minutes": 4
+    },
+    {
+      "slug": "testing",
+      "group": "quality",
+      "title": "تست",
+      "summary": "TestBed، HTTP، تایمر و mock با provider",
+      "minutes": 5
+    }
+  ]
+}

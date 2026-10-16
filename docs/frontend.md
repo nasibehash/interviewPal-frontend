@@ -16,6 +16,7 @@ InterviewPal به برنامه‌نویس کمک می‌کند برای مصاح
 
 - تمرین مصاحبه: ۳۰۰ سؤال در شش فناوری (Angular، JavaScript، TypeScript، React، Next.js و .NET) در سه سطح جونیور، مید و سنیور و سه حالت تمرین: یادگیری، مصاحبه (با تایمر) و فلش‌کارت.
 - الگوریتم و الگوهای طراحی: ۲۴ درس (۱۴ الگوریتم و ۱۰ الگوی طراحی) که هر کدام مثال واقعی دارد و کدش به زبان یا فریم‌ورک انتخابی کاربر نمایش داده می‌شود، همراه با تمرین.
+- راهنمای Angular برای سنیور: ۲۱ مبحث کوتاه در ۶ گروه (RxJS، Signals، قالب و رندر، معماری، داده و فرم، کیفیت)؛ هر مبحث ایدهٔ اصلی، یک مثال کامل و نکته‌های سنیور دارد.
 - پیشرفت من: تاریخچهٔ تمرین‌ها، میانگین نمره، روزهای پشت‌سرهم و سؤال‌های ضعیف.
 - حساب کاربری: ثبت‌نام و ورود با ایمیل و رمز عبور. با ورود، تاریخچه و پیشرفت درس‌ها روی سرور ذخیره می‌شود و در هر دستگاه در دسترس است؛ داده‌های قبلی همان مرورگر (از نسخه‌های بدون حساب) هنگام اولین ورود منتقل می‌شوند. بدون ورود فقط صفحه‌های ورود و ثبت‌نام باز می‌شوند.
 - ریسپانسیو: طرح از عرض ۳۶۰ پیکسل (موبایل) تا دسکتاپ بدون اسکرول افقی کار می‌کند؛ منو در موبایل ردیف جدا و قابل‌اسکرول دارد.
@@ -34,7 +35,7 @@ InterviewPal به برنامه‌نویس کمک می‌کند برای مصاح
 | فونت | Vazirmatn (بسته `@fontsource-variable/vazirmatn`) | بدون درخواست به CDN بیرونی |
 | Markdown | `marked` و `DOMPurify` و `highlight.js` | محتوای درس‌ها Markdown است؛ بعد از تبدیل پاک‌سازی (sanitize) می‌شود |
 | احراز هویت | JWT کوتاه‌عمر در حافظه و refresh token در کوکی httpOnly | توکن دسترسی هیچ‌جا ذخیره نمی‌شود و جاوااسکریپت به refresh token دسترسی ندارد (جلوگیری از سرقت با XSS) |
-| تست | Vitest از طریق `ng test` | اجرای سریع و ساده؛ ۸۷ تست واحد |
+| تست | Vitest از طریق `ng test` | اجرای سریع و ساده؛ ۹۳ تست واحد |
 | استایل | SCSS ساده با متغیرهای CSS و تم روشن/تیره | بدون کتابخانهٔ UI؛ حجم کم |
 
 > **ذخیره‌سازی بدون حساب و با حساب**
@@ -51,6 +52,7 @@ src/app/
   core/                          logic and data, no UI
     models.ts                    TypeScript types of the API contract
     api-client.ts                the only place that talks HTTP (resources + calls)
+    guides.ts                    GuideCatalog: index of the Angular guides (httpResource)
     api-error.ts                 interceptor: HTTP failure -> ApiError (Persian message)
     auth-store.ts                user, access token (memory), login/register/logout/restore
     auth-interceptor.ts          adds the bearer token, refreshes once on 401
@@ -65,7 +67,9 @@ src/app/
     markdown.ts, markdown.pipe.ts, question-view, answer-panel,
     report-dialog, code-block, field-errors
   features/                      pages, each one lazy loaded
-    setup/  practice/  result/  history/  lessons/  auth/  account/
+    setup/  practice/  result/  history/  lessons/  guides/  auth/  account/
+public/content/angular/          the guides: index.json + one Markdown file per topic
+scripts/check-guides.mjs         checks that index.json and the files agree (runs before npm test)
 docs/
   frontend.md                    this document (source)
   InterviewPal-Frontend.pdf      the same document as PDF
@@ -92,6 +96,8 @@ docs/
 | `/result` | نتیجه | guard: فقط بعد از تمام شدن و ارزیابی |
 | `/lessons` | فهرست درس‌ها | تب الگوریتم‌ها و الگوهای طراحی، فیلتر سطح |
 | `/lessons/:id` | درس | پارامتر `id` با `withComponentInputBinding` مستقیم به `input()` می‌رسد |
+| `/guides` | راهنمای Angular | فهرست مبحث‌ها به‌تفکیک گروه، همراه جست‌وجوی debounce‌شده |
+| `/guides/:slug` | مبحث | متن Markdown مبحث و پیوند قبلی/بعدی؛ `slug` با `withComponentInputBinding` به `input()` می‌رسد |
 | `/history` | پیشرفت من | آمار و تاریخچه |
 | `/login` | ورود | `guestGuard`: کاربر واردشده به `/` یا مسیر `redirect` می‌رود؛ مهمان بعد از ورود به همان صفحهٔ خواسته‌شده برمی‌گردد |
 | `/register` | ثبت‌نام | فقط مهمان؛ بعد از موفقیت مستقیم وارد می‌شود |
@@ -191,6 +197,14 @@ idle -> practicing -> (self-assessment) -> submitting -> finished
 - بخش تمرین‌ها داخل `@defer (on viewport)` است: کد آن (کامپوننت `LessonExerciseView`) در یک chunk جدا بارگذاری می‌شود و فقط وقتی کاربر به پایین صفحه برسد.
 - هر تمرین جدا با API بررسی می‌شود (جواب درست در payload درس نیست) و نتیجه در `LessonProgress` ثبت می‌شود.
 
+### ۶.۶ راهنمای Angular (guides)
+
+- **محتوا فایل ایستا است:** `public/content/angular/index.json` گروه‌ها و مبحث‌ها (slug، عنوان، خلاصه، دقیقه) را نگه می‌دارد و هر مبحث یک فایل `<slug>.md` است. بدون بک‌اند و بدون build جدا سرو می‌شود؛ افزودن مبحث یعنی یک فایل Markdown و یک ردیف در index.
+- **`GuideCatalog`:** index را با `httpResource` می‌خواند. چون خواندن `value()` یک resource خطادار خطا پرتاب می‌کند، یک `computed` به نام `data` در حالت خطا و بارگذاری index خالی می‌دهد.
+- **`GuidePage`:** فقط slugهای موجود در index را درخواست می‌کند، چون Vercel مسیر ناشناخته را به `index.html` برمی‌گرداند و بدون این بررسی HTML به‌عنوان Markdown نمایش داده می‌شد. متن با `httpResource.text` گرفته و با همان `markdown` pipe (پاک‌سازی با DOMPurify و رنگ‌آمیزی) رندر می‌شود.
+- **درستی مثال‌ها:** همهٔ کدهای TypeScript با کامپایلر Angular 22 در حالت `strict` و `strictTemplates` کامپایل شدند، مثال‌های RxJS اجرا شدند و خروجی کامنت‌ها با اجرای واقعی تطبیق داده شد، و مثال تست با Vitest اجرا شد.
+- **`scripts/check-guides.mjs`:** پیش از `npm test` اجرا می‌شود و تطابق index و فایل‌ها، یکتا بودن slug، گروه معتبر، تعادل fenceها، زبان‌های قابل‌رنگ‌آمیزی و نبود `<script>` را بررسی می‌کند.
+
 ## ۷. کامپوننت‌های مشترک
 
 | کامپوننت | کار |
@@ -266,11 +280,12 @@ idle -> practicing -> (self-assessment) -> submitting -> finished
 
 ## ۱۱. تست
 
-۸۷ تست واحد با Vitest (`npm test`):
+۹۳ تست واحد با Vitest (`npm test`):
 
 - ApiClient: مسیر و بدنهٔ هر درخواست با `HttpTestingController`.
 - PracticeSessionStore: شروع تمرین، ارزیابی فوری در یادگیری، نبودن درخواست در مصاحبه، فاز خودارزیابی، ارسال نهایی، بازگشت بعد از خطا و تمرین خالی.
 - ProgressStore، LessonProgress و PreferredTechnology: ثبت، ماندگاری، پاک‌کردن، streak و مقدار نامعتبر storage.
+- GuidesPage و GuidePage: گروه‌بندی و جست‌وجو، خطای بارگذاری فهرست، رندر Markdown با پاک‌سازی script، مبحث قبلی/بعدی و درخواست‌ندادن برای slug ناموجود.
 - `apiErrorInterceptor`: تبدیل خطاهای HTTP به `ApiError` با پیام فارسی.
 - AuthStore: ورود، ثبت‌نام، بازیابی نشست (با و بدون نشانه)، خروج و تغییر رمز.
 - `authInterceptor`: افزودن توکن، یک refresh مشترک برای چند ۴۰۱ هم‌زمان، تکرار درخواست و خروج بعد از رد شدن refresh.
