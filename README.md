@@ -17,6 +17,10 @@ Backend: [interviewPal-backend](https://github.com/nasibehash/interviewPal-backe
   a code sample written for the technology you pick (JavaScript, TypeScript, Angular, React, Next.js or .NET) and exercises.
   The chosen technology and the answered exercises are remembered in the browser. The list has a debounced search
   that treats Arabic and Persian letters alike.
+- **Angular guide for seniors** (`/guides`): 21 short topics in 6 groups (RxJS, signals, templates and rendering,
+  architecture, data and forms, quality). Each has the core idea, one complete example and senior-level pitfalls. The
+  content is static Markdown in `public/content/angular/` (an `index.json` plus one file per topic); `npm test` first
+  runs `scripts/check-guides.mjs` to keep them consistent.
 - **Accounts** (`/register`, `/login`, `/account`): sign up with email and password. A logged-in learner's history,
   weak questions and lesson progress live on the server and follow them across devices; what the browser collected
   before is imported once at the first login. **An account is required**: without one only the login and register pages
@@ -85,7 +89,7 @@ The full list with where and why is in [docs/frontend.md](docs/frontend.md).
 src/app/
   core/       models, API client, error and auth interceptors, auth store and guards, practice-session and progress stores
   shared/     markdown rendering (sanitized), question view, answer panel, report dialog, code block
-  features/   setup, practice, result, history, lessons, auth (login, register) and account pages (lazy loaded)
+  features/   setup, practice, result, history, lessons, guides, auth (login, register) and account pages (lazy loaded)
 docs/         implementation document (frontend.md) and its PDF
 ```
 

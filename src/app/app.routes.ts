@@ -48,6 +48,16 @@ export const routes: Routes = [
         loadComponent: () => import('./features/lessons/lesson-page').then((m) => m.LessonPage),
       },
       {
+        path: 'guides',
+        title: 'راهنمای Angular',
+        loadComponent: () => import('./features/guides/guides-page').then((m) => m.GuidesPage),
+      },
+      {
+        path: 'guides/:slug',
+        title: 'مبحث Angular',
+        loadComponent: () => import('./features/guides/guide-page').then((m) => m.GuidePage),
+      },
+      {
         path: 'history',
         title: 'پیشرفت من',
         loadComponent: () => import('./features/history/history-page').then((m) => m.HistoryPage),

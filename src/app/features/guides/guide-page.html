@@ -1,0 +1,40 @@
+<a class="back" routerLink="/guides">← همهٔ مبحث‌ها</a>
+
+@if (missing()) {
+  <p class="error" role="alert">این مبحث پیدا نشد.</p>
+} @else if (topic(); as t) {
+  <header>
+    <div class="meta">
+      <span class="badge">{{ groupTitle() }}</span>
+      <span class="muted">{{ t.minutes }} دقیقه</span>
+    </div>
+    <h1>{{ t.title }}</h1>
+    <p class="muted">{{ t.summary }}</p>
+  </header>
+
+  @if (body.error()) {
+    <div class="error" role="alert">
+      متن مبحث بارگذاری نشد.
+      <button class="btn" type="button" (click)="body.reload()">تلاش دوباره</button>
+    </div>
+  } @else if (body.hasValue()) {
+    <article class="card md" [innerHTML]="body.value() | markdown"></article>
+  } @else {
+    <p class="muted">در حال بارگذاری…</p>
+  }
+
+  <nav class="pager" aria-label="مبحث قبلی و بعدی">
+    @if (previous(); as p) {
+      <a class="card" [routerLink]="['/guides', p.slug]"
+        ><span class="muted">قبلی</span><strong>{{ p.title }}</strong></a
+      >
+    }
+    @if (next(); as n) {
+      <a class="card next" [routerLink]="['/guides', n.slug]"
+        ><span class="muted">بعدی</span><strong>{{ n.title }}</strong></a
+      >
+    }
+  </nav>
+} @else {
+  <p class="muted">در حال بارگذاری…</p>
+}
