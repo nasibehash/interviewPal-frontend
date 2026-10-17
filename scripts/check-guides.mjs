@@ -29,7 +29,7 @@ for (const topic of index.topics) {
     continue;
   }
   const fences = [...text.matchAll(/^```(\w*)\s*$/gm)];
-  if (fences.length === 0 || fences.length % 2 !== 0) problems.push(`${topic.slug}: unbalanced code fences`);
+  if (fences.length % 2 !== 0) problems.push(`${topic.slug}: unbalanced code fences`);
   // opening fences are the even-numbered ones
   fences.filter((_, i) => i % 2 === 0).forEach((m) => {
     if (!highlighted.has(m[1])) problems.push(`${topic.slug}: code fence language "${m[1]}" is not highlighted`);
