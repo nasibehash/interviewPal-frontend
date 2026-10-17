@@ -18,7 +18,9 @@ Backend: [interviewPal-backend](https://github.com/nasibehash/interviewPal-backe
   The chosen technology and the answered exercises are remembered in the browser. The list has a debounced search
   that treats Arabic and Persian letters alike.
 - **Angular guide for seniors** (`/guides`): 21 short topics in 6 groups (RxJS, signals, templates and rendering,
-  architecture, data and forms, quality). Each has the core idea, one complete example and senior-level pitfalls. The
+  architecture, data and forms, quality). Each has the core idea, one complete example and senior-level pitfalls.
+  A separate section, **senior interview questions**, has 7 more topics of questions with short answers and examples
+  (change detection, signals and RxJS, DI and architecture, router/HTTP/forms, security, testing and SSR, experience). The
   content is static Markdown in `public/content/angular/` (an `index.json` plus one file per topic); `npm test` first
   runs `scripts/check-guides.mjs` to keep them consistent.
 - **Accounts** (`/register`, `/login`, `/account`): sign up with email and password. A logged-in learner's history,

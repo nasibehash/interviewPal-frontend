@@ -29,6 +29,11 @@
       "id": "quality",
       "title": "کیفیت",
       "description": "کارایی و تست"
+    },
+    {
+      "id": "interview",
+      "title": "سؤال‌های مصاحبهٔ سنیور",
+      "description": "سؤال‌های رایج مصاحبه با جواب کوتاه و مثال"
     }
   ],
   "topics": [
@@ -177,6 +182,55 @@
       "group": "quality",
       "title": "تست",
       "summary": "TestBed، HTTP، تایمر و mock با provider",
+      "minutes": 5
+    },
+    {
+      "slug": "interview-change-detection",
+      "group": "interview",
+      "title": "Change Detection و کارایی",
+      "summary": "OnPush، zoneless، صفحهٔ کند و لیست بزرگ",
+      "minutes": 6
+    },
+    {
+      "slug": "interview-signals-rxjs",
+      "group": "interview",
+      "title": "Signals و RxJS",
+      "summary": "signal در برابر Subject، computed/effect، flattening و shareReplay",
+      "minutes": 7
+    },
+    {
+      "slug": "interview-di-architecture",
+      "group": "interview",
+      "title": "DI و معماری",
+      "summary": "injector، توکن، ساختار اپ بزرگ، NgRx و micro-frontend",
+      "minutes": 7
+    },
+    {
+      "slug": "interview-router-http-forms",
+      "group": "interview",
+      "title": "Router، HTTP و فرم",
+      "summary": "guard و resolver، refresh هم‌زمان توکن، فرم‌ها",
+      "minutes": 6
+    },
+    {
+      "slug": "interview-security",
+      "group": "interview",
+      "title": "امنیت",
+      "summary": "XSS، نگهداری توکن، CSRF، guard و CSP",
+      "minutes": 6
+    },
+    {
+      "slug": "interview-testing-ssr",
+      "group": "interview",
+      "title": "تست، SSR و مهاجرت",
+      "summary": "استراتژی تست، hydration، مهاجرت پروژهٔ قدیمی",
+      "minutes": 6
+    },
+    {
+      "slug": "interview-experience",
+      "group": "interview",
+      "title": "سؤال‌های تجربه‌محور",
+      "summary": "باگ سخت، تصمیم اشتباه، code review و آماده‌سازی",
       "minutes": 5
     }
   ]
